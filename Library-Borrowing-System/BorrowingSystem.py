@@ -12,6 +12,7 @@ from PyQt6.QtWidgets import (
     QListWidget,
     QDialog,
     QComboBox,
+    QCompleter,
     QTextEdit,
     QTabWidget,
     QDialogButtonBox,
@@ -27,36 +28,73 @@ class AddBookDialog(QDialog):
         self.setWindowTitle("Add Book")
         layout = QVBoxLayout(self)
         
-        # Input fields for author, title, category, description, and fee
+        # Input fields for author, title, genre, description, and fee
+        layout.addWidget(QLabel("Author:"))
         self.author_input = QLineEdit(self)
         self.author_input.setPlaceholderText("Enter author")
         layout.addWidget(self.author_input)
 
+        layout.addWidget(QLabel("Title:"))
         self.title_input = QLineEdit(self)
         self.title_input.setPlaceholderText("Enter title")
         layout.addWidget(self.title_input)
 
-        layout.addWidget(QLabel("Category:"))
-        category_layout = QVBoxLayout()
-        layout.addLayout(category_layout)
+        layout.addWidget(QLabel("ISBN:"))
+        self.isbn_input = QLineEdit(self)
+        self.isbn_input.setPlaceholderText("Enter ISBN")
+        layout.addWidget(self.isbn_input)
 
-        categories = [
-            "Action and Adventure",
-            "Anthology",
-            # Add more categories here...
+    
+        layout.addWidget(QLabel("Genre:"))
+        genres_layout = QVBoxLayout()
+        layout.addLayout(genres_layout)
+
+        genres = [
+           "Action", "Adventure", "Anthology", "Art",
+            "Biography", "Business",
+            "Children's", "Classics", "Comedy", "Comics", "Contemporary", "Cookbooks", "Crime",
+            "Drama", "Dystopian",
+            "Economics", "Education", "Epic", "Essays",
+            "Fairy Tale", "Fantasy", "Fiction", "Folklore",
+            "Graphic Novels", "Gothic",
+            "Historical Fiction", "History", "Horror", "Humor",
+            "Inspirational", "Instructional",
+            "Journalism",
+            "Kids", "Knowledge",
+            "Literary Fiction", "Literature",
+            "Memoir", "Mystery", "Mythology",
+            "Non-fiction",
+            "Occult", "Outdoors",
+            "Paranormal", "Philosophy", "Photography", "Poetry", "Political", "Psychology",
+            "Queer Literature",
+            "Realistic Fiction", "Reference", "Religion", "Romance",
+            "Satire", "Science", "Science Fiction", "Self-help", "Short Stories", "Spiritual", "Sports", "Suspense",
+            "Technology", "Thriller", "Travel", "True Crime",
+            "Urban Fantasy",
+            "Vampire", "Veterinary",
+            "War", "Western",
+            "Young Adult",
+            "Zombie"
         ]
 
         self.category_combo = QComboBox(self)
-        self.category_combo.addItems(categories)
-        category_layout.addWidget(self.category_combo)
+        self.category_combo.setEditable(True)
+        self.category_combo.addItems(genres)
+        completer = QCompleter(genres, self.category_combo)
+        completer.setCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
+        self.category_combo.setCompleter(completer)
+        layout.addWidget(self.category_combo)
 
+        layout.addWidget(QLabel("Description:"))
         self.description_input = QTextEdit(self)
         self.description_input.setPlaceholderText("Enter description")
         layout.addWidget(self.description_input)
         
+        layout.addWidget(QLabel("Base Price:"))
         self.fee_input = QLineEdit(self)
-        self.fee_input.setPlaceholderText("Enter fee")
+        self.fee_input.setPlaceholderText("Enter base price")
         layout.addWidget(self.fee_input)
+        
 
         # Buttons for adding and canceling
         buttons = QDialogButtonBox()
@@ -71,10 +109,11 @@ class AddBookDialog(QDialog):
     def get_book_info(self):
         author = self.author_input.text()
         title = self.title_input.text()
-        category = self.category_combo.currentText()
+        isbn = self.isbn_input.text()
+        genre = self.category_combo.currentText()
         description = self.description_input.toPlainText()
-        fee = float(self.fee_input.text())
-        return author, title, category, description, fee
+        baseprice = float(self.fee_input.text())
+        return author, title, isbn, genre, description, baseprice
 
 # Dialog for adding a new customer
 class AddCustomerDialog(QDialog):
@@ -84,21 +123,20 @@ class AddCustomerDialog(QDialog):
         layout = QVBoxLayout(self)
 
         # Input fields for customer information
+        layout.addWidget(QLabel("Customer Name:"))
         self.name_input = QLineEdit(self)
         self.name_input.setPlaceholderText("Enter name")
         layout.addWidget(self.name_input)
 
+        layout.addWidget(QLabel("Gender:"))
         self.gender_combo = QComboBox(self)
         self.gender_combo.addItems(["Male", "Female", "Other"])
         layout.addWidget(self.gender_combo)
 
+        layout.addWidget(QLabel("Phone Number:"))
         self.number_input = QLineEdit(self)
         self.number_input.setPlaceholderText("Enter number")
         layout.addWidget(self.number_input)
-
-        self.phone_input = QLineEdit(self)
-        self.phone_input.setPlaceholderText("Enter phone number")
-        layout.addWidget(self.phone_input)
 
         self.valid_id_input = QLineEdit(self)
         self.valid_id_input.setPlaceholderText("Enter valid ID")
@@ -117,10 +155,9 @@ class AddCustomerDialog(QDialog):
     def get_customer_info(self):
         name = self.name_input.text()
         gender = self.gender_combo.currentText()
-        number = self.number_input.text()
-        phone_num = self.phone_input.text()
+        phone_num = self.number_input.text()
         valid_id = self.valid_id_input.text()
-        return name, gender, number, phone_num, valid_id
+        return name, gender, phone_num, valid_id
 
 # Dialog for displaying detailed book information
 class BookInfoDialog(QDialog):
@@ -170,7 +207,7 @@ class LibraryApp(QMainWindow):
         super().__init__()
 
         self.setWindowTitle("Book Borrowing System")
-        self.setGeometry(100, 100, 500, 400)
+        self.setGeometry(00, 200, 800, 600)
 
         self.init_ui()
 
@@ -262,38 +299,50 @@ class LibraryApp(QMainWindow):
 
     # Method to initialize the database
     def init_database(self):
-        self.connection = sqlite3.connect("library.db")
+        self.connection = sqlite3.connect("rent_sys.db")
         self.cursor = self.connection.cursor()
         self.cursor.execute(
-            "CREATE TABLE IF NOT EXISTS books (id INTEGER PRIMARY KEY, author TEXT, title TEXT, category TEXT, description TEXT, fee REAL, available BOOLEAN)"
+            "CREATE TABLE IF NOT EXISTS books (BookID INTEGER PRIMARY KEY AUTOINCREMENT, ISBN TEXT, Author TEXT, Title TEXT, Genre TEXT, Description TEXT, BasePrice REAL, Status TEXT)"
         )
         self.cursor.execute(
-            "CREATE TABLE IF NOT EXISTS customers (id INTEGER PRIMARY KEY, name TEXT, gender TEXT, number TEXT, phone_num TEXT, valid_id TEXT)"
+            "CREATE TABLE IF NOT EXISTS customers (CustomerID INTEGER PRIMARY KEY  AUTOINCREMENT, Name TEXT, Gender TEXT, PhoneNumber TEXT, validIDpath TEXT)"
         )
         self.cursor.execute(
-            "CREATE TABLE IF NOT EXISTS rentals (id INTEGER PRIMARY KEY, customer_id INTEGER, book_id INTEGER, FOREIGN KEY(customer_id) REFERENCES customers(id), FOREIGN KEY(book_id) REFERENCES books(id))"
+            "CREATE TABLE IF NOT EXISTS rentals (RentId INTEGER PRIMARY KEY AUTOINCREMENT, customer_id INTEGER, book_id INTEGER, RentalDate TEXT, DueDate TEXT, RentFee REAL, FOREIGN KEY(customer_id) REFERENCES customers(CustomerID), FOREIGN KEY(book_id) REFERENCES books(BookID))"
         )  
+        self.cursor.execute(
+            "CREATE TABLE IF NOT EXISTS returns (ReturnId INTEGER PRIMARY KEY AUTOINCREMENT, customer_id INTEGER, book_id INTEGER, ReturnDate TEXT, OverdueFine REAL, FOREIGN KEY(customer_id) REFERENCES customers(CustomerID), FOREIGN KEY(book_id) REFERENCES books(BookID))"
+        ) 
+        self.cursor.execute(
+            "CREATE TABLE IF NOT EXISTS reservations (ReserveId INTEGER PRIMARY KEY AUTOINCREMENT, customer_id INTEGER, book_id INTEGER, ReservationDate TEXT, RservationFee REAL, FOREIGN KEY(customer_id) REFERENCES customers(CustomerID), FOREIGN KEY(book_id) REFERENCES books(BookID))"
+        ) 
+        
         self.connection.commit()
 
     # Method to display the add book dialog
     def show_add_book_dialog(self):
         dialog = AddBookDialog()
         if dialog.exec() == QDialog.DialogCode.Accepted:
-            author, title, category, description, fee = dialog.get_book_info()
-            if author and title and category:
-                self.cursor.execute("INSERT INTO books (author, title, category, description, fee, available) VALUES (?, ?, ?, ?, ?, ?)", (author, title, category, description, fee, True))
-                self.connection.commit()
-                self.load_books()
-            else:
-                QMessageBox.warning(self, "Warning", "Please fill in all fields.")
+            book_info = dialog.get_book_info()
+            if book_info:
+                author, title, isbn, genre, description, baseprice = book_info
+                try:
+                    self.cursor.execute(
+                        "INSERT INTO books (ISBN, Author, Title, Genre, Description, BasePrice, Status) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                        (isbn, author, title, genre, description, baseprice, "Available"))
+                    self.connection.commit()
+                    self.load_books()
+                except sqlite3.Error as e:
+                    QMessageBox.warning(self, "Error", f"Error occurred: {str(e)}")
+            QMessageBox.warning(self, "Warning", "Please fill in all fields.")
 
     # Method to display the add customer dialog
     def show_add_customer_dialog(self):
         dialog = AddCustomerDialog()
         if dialog.exec() == QDialog.DialogCode.Accepted:
-            name, gender, number, phone_num, valid_id = dialog.get_customer_info()
-            if name and gender and number and phone_num and valid_id:
-                self.cursor.execute("INSERT INTO customers (name, gender, number, phone_num, valid_id) VALUES (?, ?, ?, ?, ?)", (name, gender, number, phone_num, valid_id))
+            name, gender, phone_num, valid_id = dialog.get_customer_info()
+            if name and gender and phone_num and valid_id:
+                self.cursor.execute("INSERT INTO customers (Name, Gender, PhoneNumber, validIDpath) VALUES (?, ?, ?, ?)", (name, gender, phone_num, valid_id))
                 self.connection.commit()
                 self.load_customers()
             else:
@@ -313,8 +362,8 @@ class LibraryApp(QMainWindow):
         self.cursor.execute("SELECT * FROM books")
         books = self.cursor.fetchall()
         for book in books:
-            status = "Available" if book[6] else "Borrowed"
-            self.books_list.addItem(f"{book[0]}: {book[2]} by {book[1]} ({book[3]}) - Fee: {book[5]} - {status}")
+            status = "Available" if book[7] else "Borrowed"
+            self.books_list.addItem(f"{book[0]}: {book[3]} by {book[2]} ({book[4]}) - Fee: {book[6]} - {status}")
 
     # Method to set the style for buttons
     def set_button_style(self, button):
@@ -349,17 +398,18 @@ class LibraryApp(QMainWindow):
         selected_book = self.books_list.currentItem()
         if selected_book:
             book_id = int(selected_book.text().split(":")[0])
-            self.cursor.execute("SELECT * FROM books WHERE id = ?", (book_id,))
+            self.cursor.execute("SELECT * FROM books WHERE BookID = ?", (book_id,))
             book_info = self.cursor.fetchone()
             if book_info:
                 book_details = {
                     "ID": book_info[0],
-                    "Title": book_info[2],
-                    "Author": book_info[1],
-                    "Category": book_info[3],
-                    "Description": book_info[4],
-                    "Fee": book_info[5],
-                    "Status": "Available" if book_info[6] else "Borrowed"
+                    "ISBN":book_info[1],
+                    "Title": book_info[3],
+                    "Author": book_info[2],
+                    "Genre": book_info[4],
+                    "Description": book_info[5],
+                    "Base Price": book_info[6],
+                    "Status": "Available" if book_info[7] else "Borrowed"
                 }
                 self.show_rent_dialog(book_details)
         else:
