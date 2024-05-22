@@ -22,14 +22,19 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QIcon, QPixmap
 import sqlite3
 
+
 # Dialog for adding a new book
 class AddBookDialog(QDialog):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Add Book")
         layout = QVBoxLayout(self)
-        
+
         # Input fields for author, title, category, description, and fee
+        self.ISBN_input = QLineEdit(self)
+        self.ISBN_input.setPlaceholderText("Enter ISBN code")
+        layout.addWidget(self.ISBN_input)
+
         self.author_input = QLineEdit(self)
         self.author_input.setPlaceholderText("Enter author")
         layout.addWidget(self.author_input)
@@ -77,7 +82,7 @@ class AddBookDialog(QDialog):
         self.description_input = QTextEdit(self)
         self.description_input.setPlaceholderText("Enter description")
         layout.addWidget(self.description_input)
-        
+
         self.fee_input = QLineEdit(self)
         self.fee_input.setPlaceholderText("Enter fee")
         layout.addWidget(self.fee_input)
@@ -98,22 +103,26 @@ class AddBookDialog(QDialog):
 
     # Method to select an image for the book cover
     def select_cover_image(self):
-        file_name, _ = QFileDialog.getOpenFileName(self, "Select Cover Image", "", "Images (*.png *.xpm *.jpg);;All Files (*)")
+        file_name, _ = QFileDialog.getOpenFileName(self, "Select Cover Image", "",
+                                                   "Images (*.png *.xpm *.jpg);;All Files (*)")
         if file_name:
             self.cover_image_label.setText(file_name)
 
     # Method to get the entered book information
     def get_book_info(self):
-        author = self.author_input.text()
-        title = self.title_input.text()
-        category = self.category_combo.currentText()
-        description = self.description_input.toPlainText()
-        cover_image = self.cover_image_label.text()
+        BookId = self.ISBN_input.text()
+        Title = self.title_input.text()
+        Author = self.author_input.text()
+        Category = self.category_combo.currentText()
+        Status = "Available"
+        Description = self.description_input.toPlainText()
+        Cover_image = self.cover_image_label.text()
         try:
-            fee = float(self.fee_input.text())
+            Rentalfee = float(self.fee_input.text())
         except ValueError:
-            fee = 0.0
-        return author, title, category, description, fee, cover_image
+            Rentalfee = 0.0
+        return BookId, Author, Title, Category, Status, Description, Rentalfee, Cover_image
+
 
 # Dialog for adding a new customer
 class AddCustomerDialog(QDialog):
@@ -130,10 +139,6 @@ class AddCustomerDialog(QDialog):
         self.gender_combo = QComboBox(self)
         self.gender_combo.addItems(["Male", "Female", "Other"])
         layout.addWidget(self.gender_combo)
-
-        self.number_input = QLineEdit(self)
-        self.number_input.setPlaceholderText("Enter number")
-        layout.addWidget(self.number_input)
 
         self.phone_input = QLineEdit(self)
         self.phone_input.setPlaceholderText("Enter phone number")
@@ -155,18 +160,40 @@ class AddCustomerDialog(QDialog):
 
     # Method to select an image for the valid ID
     def select_valid_id_image(self):
-        file_name, _ = QFileDialog.getOpenFileName(self, "Select Valid ID Image", "", "Images (*.png *.xpm *.jpg);;All Files (*)")
+        file_name, _ = QFileDialog.getOpenFileName(self, "Select Valid ID Image", "",
+                                                   "Images (*.png *.xpm *.jpg);;All Files (*)")
         if file_name:
             self.valid_id_label.setText(file_name)
 
     # Method to get the entered customer information
     def get_customer_info(self):
-        name = self.name_input.text()
-        gender = self.gender_combo.currentText()
-        number = self.number_input.text()
-        phone_num = self.phone_input.text()
-        valid_id = self.valid_id_label.text()
-        return name, gender, number, phone_num, valid_id
+        CustomerId = self.generate_customer_id()
+        Name = self.name_input.text()
+        Gender = self.gender_combo.currentText()
+        PhoneNumber = self.phone_input.text()
+        ValidIdPath = self.valid_id_label.text()
+        return CustomerId, Name, Gender, PhoneNumber, ValidIdPath
+
+    def generate_customer_id(self):
+        try:
+            with sqlite3.connect("library.db") as conn:
+                cursor = conn.cursor()
+                cursor.execute("SELECT CustomerId FROM customers ORDER BY CustomerId DESC LIMIT 1")
+                result = cursor.fetchone()
+                if result:
+                    last_id = result[0]
+                    # Extract the numeric part, increment it, and format back to Axx
+                    numeric_part = int(last_id[1:])
+                    new_numeric_part = numeric_part + 1
+                    new_id = f"A{new_numeric_part:02d}"
+                else:
+                    # No existing IDs, start with A01
+                    new_id = "A01"
+                return new_id
+        except sqlite3.Error as e:
+            QMessageBox.critical(self, "Error", f"Error generating customer ID: {e}")
+            return None
+
 
 # Dialog for displaying detailed book information
 class BookInfoDialog(QDialog):
@@ -214,6 +241,7 @@ class BookInfoDialog(QDialog):
             QMessageBox.warning(self, "Warning", "Please select a customer.")
             return None
 
+
 # Dialog for displaying detailed customer information
 class CustomerInfoDialog(QDialog):
     def __init__(self, customer_info):
@@ -243,6 +271,7 @@ class CustomerInfoDialog(QDialog):
 
         buttons.accepted.connect(self.accept)
 
+
 # Main application window
 class LibraryApp(QMainWindow):
     def __init__(self):
@@ -253,9 +282,59 @@ class LibraryApp(QMainWindow):
         self.setWindowIcon(QIcon('icon.png'))  # Optional: Set an application icon
 
         self.init_ui()
+        self.init_database()
 
         self.load_books()
         self.load_customers()
+
+    def init_database(self):
+        conn = sqlite3.connect("library.db")
+        c = conn.cursor()
+        c.execute('''CREATE TABLE IF NOT EXISTS customers
+                         (CustomerId TEXT PRIMARY KEY,
+                          Name TEXT,
+                          Gender TEXT,
+                          PhoneNumber TEXT,
+                          ValidIdPath)''')
+        c.execute('''CREATE TABLE IF NOT EXISTS books
+                        (BookId TEXT PRIMARY KEY,
+                         Title TEXT,
+                         Author TEXT, 
+                         Category TEXT,
+                         Status TEXT,
+                         RentalFee INTEGER, 
+                         Description TEXT,
+                         Cover_Image TEXT)''')
+        c.execute('''CREATE TABLE IF NOT EXISTS rentals
+                        (CustomerId TEXT,
+                         BookId TEXT,
+                         RentalDate TEXT,
+                         RentalDueDate TEXT,
+                         RentalFee INTEGER,
+                         FOREIGN KEY (CustomerId) REFERENCES customers(CustomerId),
+                         FOREIGN KEY (BookId) REFERENCES books(BookCode))''')
+
+        c.execute('''CREATE TABLE IF NOT EXISTS returns
+                        (CustomerId TEXT,
+                         BookId TEXT,
+                         ReturnDate TEXT,
+                         RentalDueDate TEXT,
+                         OverdueFee INTEGER,
+                         FOREIGN KEY (CustomerId) REFERENCES customers(CustomerId),
+                         FOREIGN KEY (BookId) REFERENCES books(BookCode),
+                         FOREIGN KEY (RentalDueDate) REFERENCES rentals(RentalDueDate))''')
+
+        c.execute('''CREATE TABLE IF NOT EXISTS reserve
+                        (CustomerId TEXT,
+                         BookId TEXT,
+                         ReservationDate TEXT,
+                         ReservationFee REAL,
+                         FOREIGN KEY (CustomerId) REFERENCES customers(CustomerId),
+                         FOREIGN KEY (BookId) REFERENCES books(BookCode))''')
+
+        conn.commit()
+        conn.close()
+
 
     # Method to initialize the UI
     def init_ui(self):
@@ -272,7 +351,7 @@ class LibraryApp(QMainWindow):
         book_tab = QWidget(self)
         tab_widget.addTab(book_tab, "Books")
         book_tab_layout = QVBoxLayout(book_tab)
-        
+
         # Title label for book tab
         title_label = QLabel("Book Rental System - Books", self)
         title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -509,8 +588,9 @@ class LibraryApp(QMainWindow):
         try:
             with sqlite3.connect("library.db") as conn:
                 cursor = conn.cursor()
-                cursor.execute("INSERT INTO books (author, title, category, description, fee, cover_image) VALUES (?, ?, ?, ?, ?, ?)",
-                               book_info)
+                cursor.execute(
+                    "INSERT INTO books (BookId, Title, Author, Category, Status, RentalFee, Description, Cover_Image) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                    book_info)
                 conn.commit()
         except sqlite3.Error as e:
             QMessageBox.critical(self, "Error", f"Error adding book: {e}")
@@ -520,8 +600,9 @@ class LibraryApp(QMainWindow):
         try:
             with sqlite3.connect("library.db") as conn:
                 cursor = conn.cursor()
-                cursor.execute("INSERT INTO customers (name, gender, number, phone_num, valid_id) VALUES (?, ?, ?, ?, ?)",
-                               customer_info)
+                cursor.execute(
+                    "INSERT INTO customers (CustomerId, Name, Gender, PhoneNumber, ValidIdPath) VALUES (?, ?, ?, ?, ?)",
+                    customer_info)
                 conn.commit()
         except sqlite3.Error as e:
             QMessageBox.critical(self, "Error", f"Error adding customer: {e}")
@@ -553,6 +634,7 @@ class LibraryApp(QMainWindow):
                     self.load_customers()
             except sqlite3.Error as e:
                 QMessageBox.critical(self, "Error", f"Error removing customer: {e}")
+
 
 # Run the application
 if __name__ == '__main__':
