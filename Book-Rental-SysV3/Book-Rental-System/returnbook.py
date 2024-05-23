@@ -9,7 +9,7 @@
 from PyQt6 import QtCore, QtGui, QtWidgets
 
 
-class Ui_ReturnDialog(object):
+class ReturnDialog(object):
     def setupUi(self, ReturnDialog):
         ReturnDialog.setObjectName("ReturnDialog")
         ReturnDialog.resize(592, 334)
@@ -56,7 +56,7 @@ class Ui_ReturnDialog(object):
         self.label_7.setObjectName("label_7")
         self.borrowedbook = QtWidgets.QComboBox(parent=ReturnDialog)
         self.borrowedbook.setGeometry(QtCore.QRect(180, 84, 371, 22))
-        self.borrowedbook.setStyleSheet(" background: white")
+        self.borrowedbook.setStyleSheet("background: white; color:black")
         self.borrowedbook.setObjectName("borrowedbook")
         self.label_8 = QtWidgets.QLabel(parent=ReturnDialog)
         self.label_8.setGeometry(QtCore.QRect(340, 170, 21, 31))
@@ -101,7 +101,7 @@ class Ui_ReturnDialog(object):
         self.rentfeefield = QtWidgets.QLineEdit(parent=ReturnDialog)
         self.rentfeefield.setEnabled(True)
         self.rentfeefield.setGeometry(QtCore.QRect(180, 216, 231, 22))
-        self.rentfeefield.setStyleSheet(" background: white")
+        self.rentfeefield.setStyleSheet("background: white; color:black")
         self.rentfeefield.setFrame(False)
         self.rentfeefield.setObjectName("rentfeefield")
         self.Cancel = QtWidgets.QPushButton(parent=ReturnDialog)
@@ -135,7 +135,7 @@ class Ui_ReturnDialog(object):
         self.label_5.setObjectName("label_5")
         self.customer = QtWidgets.QLineEdit(parent=ReturnDialog)
         self.customer.setGeometry(QtCore.QRect(180, 120, 371, 22))
-        self.customer.setStyleSheet(" background: white")
+        self.customer.setStyleSheet("background: white; color:black")
         self.customer.setFrame(False)
         self.customer.setObjectName("customer")
         self.startlabel = QtWidgets.QLabel(parent=ReturnDialog)

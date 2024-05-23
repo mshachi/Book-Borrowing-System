@@ -1,33 +1,20 @@
 import sqlite3
 from PyQt6 import QtWidgets
-import sys
 from PyQt6.QtWidgets import (
     QApplication,
     QMainWindow,
-    QWidget,
-    QVBoxLayout,
-    QHBoxLayout,
-    QPushButton,
-    QLabel,
-    QLineEdit,
-    QMessageBox,
-    QListWidget,
     QDialog,
-    QComboBox,
-    QTextEdit,
-    QTabWidget,
-    QDialogButtonBox,
-    QFormLayout,
-    QFileDialog
+    QMessageBox,
+    QTableWidgetItem
 )
-from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QIcon, QPixmap
 from mainwindow_v2 import Ui_MainWindow
 from addbook import addBookDialog
 from rentbook import RentBookDialog
 from editbook import editbookDialog
 from addcustomer import addCustomerDialog
 from editcustomer import editCustomerDialog
+from reservebook import ReserveDialog
+from returnbook import ReturnDialog
 
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
@@ -44,6 +31,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.customerbutton = self.ui.customerbutton
             self.stackedWidget = self.ui.stackedWidget
             self.booktable = self.ui.booktable
+            self.customertable = self.ui.customertable
 
             # Connect button click events to methods
             self.homebutton.clicked.connect(self.show_home)
@@ -54,18 +42,23 @@ class MainWindow(QtWidgets.QMainWindow):
             self.ui.addbookbtn.clicked.connect(self.add_book_dialog)
             self.ui.addcustomerbtn.clicked.connect(self.add_customer_dialog)
             self.ui.rentbtn.clicked.connect(self.rent_book_dialog)
+            self.ui.returnbtn.clicked.connect(self.return_book_dialog)
+            self.ui.reservebtn.clicked.connect(self.reserve_book_dialog)
             self.ui.updatebookbtn.clicked.connect(self.update_book_dialog)
             self.ui.updatecustomerbtn.clicked.connect(self.update_customer_dialog)
-
+            
             # Initialize the UI
             self.show_home()
 
             # Initialize the database
             self.init_database()
+
+            # Load books and customers
+            self.load_books()
+            self.load_customers()
+
         except Exception as e:
             print("An error occurred:", e)
-        
-        self.load_books()
 
     def show_home(self):
         # Set the current index of the stacked widget to show the home page
@@ -112,13 +105,34 @@ class MainWindow(QtWidgets.QMainWindow):
         except Exception as e:
             print("Error occurred:", e)
 
+    def return_book_dialog(self):
+        try:
+            dialog = QtWidgets.QDialog()
+            ui = ReturnDialog()
+            ui.setupUi(dialog)
+            dialog.exec()
+        except Exception as e:
+            print("Error occurred:", e)
+
+    def reserve_book_dialog(self):
+        try:    
+            dialog = QtWidgets.QDialog()
+            ui = ReserveDialog()
+            ui.setupUi(dialog)
+            dialog.exec()
+        except Exception as e:
+            print("Error occurred:", e)
+
+
     # functionalities under customer tab
     def add_customer_dialog(self):
         try:
             dialog = QtWidgets.QDialog()
             ui = addCustomerDialog()
             ui.setupUi(dialog)
-            dialog.exec()
+            if dialog.exec() == QDialog.DialogCode.Accepted:
+                customer_info = ui.get_customer_info()
+                self.add_customer_to_db(customer_info)
         except Exception as e:
             print("Error occurred:", e)
 
@@ -141,7 +155,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
             # Create the customers table
             c.execute('''CREATE TABLE IF NOT EXISTS customers
-                         (CustomerID TEXT PRIMARY KEY,
+                         (CustomerID INTEGER PRIMARY KEY AUTOINCREMENT,
                           Name TEXT,
                           Gender TEXT,
                           PhoneNumber TEXT,
@@ -214,13 +228,50 @@ class MainWindow(QtWidgets.QMainWindow):
             for row_number, book in enumerate(books):
                 self.booktable.insertRow(row_number)
                 for column_number, data in enumerate(book):
-                    item = QtWidgets.QTableWidgetItem(str(data))
+                    item = QTableWidgetItem(str(data))
                     self.booktable.setItem(row_number, column_number, item)
 
             # Close the database connection
             conn.close()
         except sqlite3.Error as e:
             print("An error occurred while loading books:", e)
+
+    # loading db contents to customer tableview
+    def load_customers(self):
+        try:
+            # Connect to the database
+            conn = sqlite3.connect('library.db')
+            cursor = conn.cursor()
+
+            # Fetch all customers from the customers table
+            cursor.execute("SELECT * FROM customers")
+            customers = cursor.fetchall()
+
+            # Clear the existing items in the customer table
+            self.customertable.clearContents()
+            self.customertable.setRowCount(0)
+
+            # Iterate over the fetched customers and populate the table
+            for row_number, customer in enumerate(customers):
+                self.customertable.insertRow(row_number)
+                for column_number, data in enumerate(customer):
+                    item = QTableWidgetItem(str(data))
+                    self.customertable.setItem(row_number, column_number, item)
+
+            # Close the database connection
+            conn.close()
+        except sqlite3.Error as e:
+            print("An error occurred while loading customers:", e)
+
+    def clear_tables(self):
+        self.booktable.clearContents()
+        self.booktable.setRowCount(0)
+        
+        self.customertable.clearContents()
+        self.customertable.setRowCount(0)
+        
+        self.ui.transactionstable.clearContents()
+        self.ui.transactionstable.setRowCount(0)
 
     # Method to add a new book to the database
     def add_book_to_db(self, book_info):
@@ -235,8 +286,24 @@ class MainWindow(QtWidgets.QMainWindow):
             self.load_books()
         except sqlite3.Error as e:
             QMessageBox.critical(self, "Error", f"Error adding book: {e}")
+    
+    # Method to add a new customer to the database
+    def add_customer_to_db(self, customer_info):
+        try:
+            with sqlite3.connect("library.db") as conn:
+                cursor = conn.cursor()
+                cursor.execute(
+                    "INSERT INTO customers (Name, Gender, PhoneNumber, ValidIdPath) VALUES (?, ?, ?, ?)",
+                    customer_info
+                )
+                conn.commit()
+
+            self.load_customers()
+        except sqlite3.Error as e:
+            QMessageBox.critical(self, "Error", f"Error adding customer: {e}")
+
 if __name__ == "__main__":
-    app = QtWidgets.QApplication([])
+    app = QApplication([])
     window = MainWindow()
     window.show()
     app.exec()

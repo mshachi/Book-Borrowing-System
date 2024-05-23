@@ -5,7 +5,7 @@ from PyQt6.QtWidgets import QMainWindow, QApplication, QDialog
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1064, 777)
+        MainWindow.resize(1064, 780)
         MainWindow.setStyleSheet("background:rgb(72, 72, 72);")
         
         self.centralwidget = QtWidgets.QWidget(parent=MainWindow)
@@ -97,11 +97,19 @@ class Ui_MainWindow(object):
         
         self.home = QtWidgets.QWidget()
         self.home.setObjectName("home")
-        self.borrowedbookstable = QtWidgets.QTableWidget(parent=self.home)
-        self.borrowedbookstable.setGeometry(QtCore.QRect(10, 0, 871, 681))
-        self.borrowedbookstable.setObjectName("borrowedbookstable")
-        self.borrowedbookstable.setColumnCount(0)
-        self.borrowedbookstable.setRowCount(0)
+        self.transactionstable = QtWidgets.QTableWidget(parent=self.home)
+        self.transactionstable.setGeometry(QtCore.QRect(10, 50, 870, 627))
+        self.transactionstable.setObjectName("transactionstable")
+        self.transactionstable.setColumnCount(4)
+        self.transactionstable.setRowCount(0)
+        self.transactionstable.setHorizontalHeaderLabels(["Date", "Action", "Book ID", "Book Title", "Customer Name"])
+        self.transactionstable.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
+        self.transactionstable.setStyleSheet("""
+            QTableWidget {
+                color: white;
+            }
+        """)
+        
         
         self.rentbtn = QtWidgets.QPushButton(parent=self.home)
         self.rentbtn.setGeometry(QtCore.QRect(890, 0, 131, 301))
@@ -205,10 +213,17 @@ class Ui_MainWindow(object):
         self.book = QtWidgets.QWidget()
         self.book.setObjectName("book")
         self.booktable = QtWidgets.QTableWidget(parent=self.book)
-        self.booktable.setGeometry(QtCore.QRect(10, 0, 871, 681))
+        self.booktable.setGeometry(QtCore.QRect(10, 50, 870, 627))
         self.booktable.setObjectName("booktable")
-        self.booktable.setColumnCount(0)
+        self.booktable.setColumnCount(7)
         self.booktable.setRowCount(0)
+        self.booktable.setHorizontalHeaderLabels(["Book ID", "ISBN", "Title", "Author", "Category", "Status", "Rental Fee"])
+        self.booktable.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
+        self.booktable.setStyleSheet("""
+            QTableWidget {
+                color: white;
+            }
+        """)
         
         self.addbookbtn = QtWidgets.QPushButton(parent=self.book)
         self.addbookbtn.setGeometry(QtCore.QRect(890, 0, 131, 381))
@@ -312,10 +327,17 @@ class Ui_MainWindow(object):
         self.customer = QtWidgets.QWidget()
         self.customer.setObjectName("customer")
         self.customertable = QtWidgets.QTableWidget(parent=self.customer)
-        self.customertable.setGeometry(QtCore.QRect(10, 0, 871, 681))
+        self.customertable.setGeometry(QtCore.QRect(10, 50, 870, 627))
         self.customertable.setObjectName("customertable")
-        self.customertable.setColumnCount(0)
+        self.customertable.setColumnCount(4)
         self.customertable.setRowCount(0)
+        self.customertable.setHorizontalHeaderLabels(["Customer ID", "Name", "Gender", "Phone Number"])
+        self.customertable.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
+        self.customertable.setStyleSheet("""
+            QTableWidget {
+                color: white;
+            }
+        """)
         
         self.addcustomerbtn = QtWidgets.QPushButton(parent=self.customer)
         self.addcustomerbtn.setGeometry(QtCore.QRect(890, 0, 131, 381))
@@ -486,12 +508,3 @@ class Ui_MainWindow(object):
                 self.bookbutton.setStyleSheet(active_style)
         elif index == 2:
                 self.customerbutton.setStyleSheet(active_style)
-
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    MainWindow = QtWidgets.QMainWindow()
-    ui = Ui_MainWindow()
-    ui.setupUi(MainWindow)
-    MainWindow.show()
-    sys.exit(app.exec())
