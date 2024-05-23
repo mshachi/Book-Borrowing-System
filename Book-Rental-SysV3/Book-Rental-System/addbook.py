@@ -103,24 +103,24 @@ class addBookDialog(object):
         self.bookdesc = QtWidgets.QTextEdit(parent=Dialog)
         self.bookdesc.setGeometry(QtCore.QRect(150, 260, 411, 101))
         self.bookdesc.setAutoFillBackground(False)
-        self.bookdesc.setStyleSheet("background: white")
+        self.bookdesc.setStyleSheet("background: white; color:black")
         self.bookdesc.setObjectName("bookdesc")
         self.isbnlineedit = QtWidgets.QLineEdit(parent=Dialog)
         self.isbnlineedit.setGeometry(QtCore.QRect(150, 84, 411, 22))
-        self.isbnlineedit.setStyleSheet("background: white")
+        self.isbnlineedit.setStyleSheet("background: white; color:black")
         self.isbnlineedit.setFrame(False)
         self.isbnlineedit.setObjectName("isbnlineedit")
         self.titlelineedit = QtWidgets.QLineEdit(parent=Dialog)
         self.titlelineedit.setGeometry(QtCore.QRect(150, 126, 411, 22))
-        self.titlelineedit.setStyleSheet("background: white")
+        self.titlelineedit.setStyleSheet("background: white; color:black")
         self.titlelineedit.setObjectName("titlelineedit")
         self.authorlineedit = QtWidgets.QLineEdit(parent=Dialog)
         self.authorlineedit.setGeometry(QtCore.QRect(150, 170, 411, 22))
-        self.authorlineedit.setStyleSheet("background: white")
+        self.authorlineedit.setStyleSheet("background: white; color:black")
         self.authorlineedit.setObjectName("authorlineedit")
         self.bookbasefee = QtWidgets.QLineEdit(parent=Dialog)
         self.bookbasefee.setGeometry(QtCore.QRect(150, 379, 411, 22))
-        self.bookbasefee.setStyleSheet("background: white")
+        self.bookbasefee.setStyleSheet("background: white; color:black")
         self.bookbasefee.setObjectName("bookbasefee")
         self.label_9 = QtWidgets.QLabel(parent=Dialog)
         self.label_9.setGeometry(QtCore.QRect(30, 430, 101, 41))
@@ -171,7 +171,7 @@ class addBookDialog(object):
         self.label.setObjectName("label")
         self.categorybox = QtWidgets.QComboBox(parent=Dialog)
         self.categorybox.setGeometry(QtCore.QRect(150, 210, 231, 31))
-        self.categorybox.setStyleSheet("background: white")
+        self.categorybox.setStyleSheet("background: white; color:black")
         self.categorybox.setObjectName("categorybox")
 
         genres = [
@@ -268,6 +268,5 @@ class addBookDialog(object):
         except ValueError:
             bookbasefee = 0.0
         return ISBN, Title, Author, Category, Status, Description, bookbasefee, Cover_image
-
     
     

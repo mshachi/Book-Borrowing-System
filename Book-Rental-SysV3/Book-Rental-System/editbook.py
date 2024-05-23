@@ -36,11 +36,11 @@ class editbookDialog(object):
         self.label_4.setObjectName("label_4")
         self.bookbasefee = QtWidgets.QLineEdit(parent=editbook)
         self.bookbasefee.setGeometry(QtCore.QRect(150, 379, 411, 22))
-        self.bookbasefee.setStyleSheet(" background: white")
+        self.bookbasefee.setStyleSheet("background: white; color:black")
         self.bookbasefee.setObjectName("bookbasefee")
         self.titlelineedit = QtWidgets.QLineEdit(parent=editbook)
         self.titlelineedit.setGeometry(QtCore.QRect(150, 126, 411, 22))
-        self.titlelineedit.setStyleSheet(" background: white")
+        self.titlelineedit.setStyleSheet("background: white; color:black")
         self.titlelineedit.setObjectName("titlelineedit")
         self.label_9 = QtWidgets.QLabel(parent=editbook)
         self.label_9.setGeometry(QtCore.QRect(30, 430, 101, 41))
@@ -57,7 +57,7 @@ class editbookDialog(object):
         self.bookdesc = QtWidgets.QTextEdit(parent=editbook)
         self.bookdesc.setGeometry(QtCore.QRect(150, 260, 411, 101))
         self.bookdesc.setAutoFillBackground(False)
-        self.bookdesc.setStyleSheet(" background: white")
+        self.bookdesc.setStyleSheet("background: white; color:black")
         self.bookdesc.setObjectName("bookdesc")
         self.Confirm = QtWidgets.QPushButton(parent=editbook)
         self.Confirm.setGeometry(QtCore.QRect(90, 500, 221, 40))
@@ -91,12 +91,12 @@ class editbookDialog(object):
         self.label_10.setObjectName("label_10")
         self.isbnlineedit = QtWidgets.QLineEdit(parent=editbook)
         self.isbnlineedit.setGeometry(QtCore.QRect(150, 84, 411, 22))
-        self.isbnlineedit.setStyleSheet(" background: white")
+        self.isbnlineedit.setStyleSheet("background: white; color:black")
         self.isbnlineedit.setFrame(False)
         self.isbnlineedit.setObjectName("isbnlineedit")
         self.authorlineedit = QtWidgets.QLineEdit(parent=editbook)
         self.authorlineedit.setGeometry(QtCore.QRect(150, 170, 411, 22))
-        self.authorlineedit.setStyleSheet(" background: white")
+        self.authorlineedit.setStyleSheet("background: white; color:black")
         self.authorlineedit.setObjectName("authorlineedit")
         self.openpicbutton = QtWidgets.QToolButton(parent=editbook)
         self.openpicbutton.setGeometry(QtCore.QRect(150, 440, 411, 31))
@@ -130,10 +130,41 @@ class editbookDialog(object):
         self.label.setFont(font)
         self.label.setStyleSheet("color:white;")
         self.label.setObjectName("label")
-        self.bookcbox = QtWidgets.QComboBox(parent=editbook)
-        self.bookcbox.setGeometry(QtCore.QRect(150, 210, 231, 31))
-        self.bookcbox.setStyleSheet(" background: white")
-        self.bookcbox.setObjectName("bookcbox")
+        self.categorycbox = QtWidgets.QComboBox(parent=editbook)
+        self.categorycbox.setGeometry(QtCore.QRect(150, 210, 231, 31))
+        self.categorycbox.setStyleSheet("background: white; color:black")
+        self.categorycbox.setObjectName("categorycbox")
+
+        genres = [
+            "Action", "Adventure", "Anthology", "Art",
+            "Biography", "Business",
+            "Children's", "Classics", "Comedy", "Comics", "Contemporary", "Cookbooks", "Crime",
+            "Drama", "Dystopian",
+            "Economics", "Education", "Epic", "Essays",
+            "Fairy Tale", "Fantasy", "Fiction", "Folklore",
+            "Graphic Novels", "Gothic",
+            "Historical Fiction", "History", "Horror", "Humor",
+            "Inspirational", "Instructional",
+            "Journalism",
+            "Kids", "Knowledge",
+            "Literary Fiction", "Literature",
+            "Memoir", "Mystery", "Mythology",
+            "Non-fiction",
+            "Occult", "Outdoors",
+            "Paranormal", "Philosophy", "Photography", "Poetry", "Political", "Psychology",
+            "Queer Literature",
+            "Realistic Fiction", "Reference", "Religion", "Romance",
+            "Satire", "Science", "Science Fiction", "Self-help", "Short Stories", "Spiritual", "Sports", "Suspense",
+            "Technology", "Thriller", "Travel", "True Crime",
+            "Urban Fantasy",
+            "Vampire", "Veterinary",
+            "War", "Western",
+            "Young Adult",
+            "Zombie"
+        ]
+
+        self.categorycbox.addItems(genres)
+
         self.label_8 = QtWidgets.QLabel(parent=editbook)
         self.label_8.setGeometry(QtCore.QRect(28, 360, 101, 41))
         font = QtGui.QFont()
@@ -198,7 +229,7 @@ class editbookDialog(object):
         self.authorlineedit.raise_()
         self.openpicbutton.raise_()
         self.frame.raise_()
-        self.bookcbox.raise_()
+        self.categorycbox.raise_()
         self.label_8.raise_()
         self.Cancel.raise_()
         self.label_5.raise_()

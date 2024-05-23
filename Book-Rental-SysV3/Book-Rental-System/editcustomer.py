@@ -27,7 +27,7 @@ class editCustomerDialog(object):
         self.label_6.setObjectName("label_6")
         self.phonenumber = QtWidgets.QLineEdit(parent=editcustomer)
         self.phonenumber.setGeometry(QtCore.QRect(160, 130, 201, 22))
-        self.phonenumber.setStyleSheet(" background: white")
+        self.phonenumber.setStyleSheet("background: white; color:black")
         self.phonenumber.setObjectName("phonenumber")
         self.label_5 = QtWidgets.QLabel(parent=editcustomer)
         self.label_5.setGeometry(QtCore.QRect(370, 120, 71, 31))
@@ -80,7 +80,7 @@ class editCustomerDialog(object):
         self.Cancel.setObjectName("Cancel")
         self.namecustomer = QtWidgets.QLineEdit(parent=editcustomer)
         self.namecustomer.setGeometry(QtCore.QRect(160, 86, 411, 22))
-        self.namecustomer.setStyleSheet(" background: white")
+        self.namecustomer.setStyleSheet("background: white; color:black")
         self.namecustomer.setFrame(False)
         self.namecustomer.setObjectName("namecustomer")
         self.openpicbutton = QtWidgets.QPushButton(parent=editcustomer)
@@ -119,7 +119,7 @@ class editCustomerDialog(object):
         self.label_9.setObjectName("label_9")
         self.comboBox = QtWidgets.QComboBox(parent=editcustomer)
         self.comboBox.setGeometry(QtCore.QRect(450, 130, 121, 22))
-        self.comboBox.setStyleSheet("background-color:white")
+        self.comboBox.setStyleSheet("background: white; color:black")
         self.comboBox.setObjectName("comboBox")
         self.frame = QtWidgets.QFrame(parent=editcustomer)
         self.frame.setGeometry(QtCore.QRect(0, 0, 641, 61))
@@ -144,6 +144,9 @@ class editCustomerDialog(object):
 
         self.retranslateUi(editcustomer)
         QtCore.QMetaObject.connectSlotsByName(editcustomer)
+
+        Gender = ['Male', 'Female', 'Other']
+        self.comboBox.addItems(Gender)
 
     def retranslateUi(self, editcustomer):
         _translate = QtCore.QCoreApplication.translate

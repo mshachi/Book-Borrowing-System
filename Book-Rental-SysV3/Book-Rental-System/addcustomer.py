@@ -153,6 +153,14 @@ class addCustomerDialog(object):
 
         # Connect the openpicbutton to a slot
         self.openpicbutton.clicked.connect(self.open_file_dialog)
+        
+        # Connect the buttons to their respective slots
+        self.Confirm.clicked.connect(Dialog.accept)
+        self.Cancel.clicked.connect(Dialog.reject)
+
+        Gender = ['Male', 'Female', 'Other']
+        self.comboBox.addItems(Gender)
+
 
     def retranslateUi(self, Dialog):
         _translate = QtCore.QCoreApplication.translate
@@ -168,8 +176,16 @@ class addCustomerDialog(object):
 
     def open_file_dialog(self):
         try:
-                file_path, _ = QFileDialog.getOpenFileName(None, "Select Book Cover", "", "Images (*.png *.jpg *.jpeg *.bmp *.gif)")
-                if file_path:
-                        self.openpicbutton.setText(file_path)
+            file_path, _ = QFileDialog.getOpenFileName(None, "Select Book Cover", "", "Images (*.png *.jpg *.jpeg *.bmp *.gif)")
+            if file_path:
+                self.openpicbutton.setText(file_path)
         except Exception as e:
-                print("Error Occurred:", e)
+            print("Error Occurred:", e)     
+
+    def get_customer_info(self):
+        name = self.namecustomer.text()
+        phone_number = self.phonenumber.text()
+        gender = self.comboBox.currentText()
+        valid_id_path = self.openpicbutton.text() if self.openpicbutton.text() != "Select Picture" else "No Image Available"
+        return name, gender, phone_number, valid_id_path
+
