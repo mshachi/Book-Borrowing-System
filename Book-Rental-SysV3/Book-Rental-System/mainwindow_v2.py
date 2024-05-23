@@ -247,15 +247,15 @@ class Ui_MainWindow(object):
         """)
         self.addbookbtn.setObjectName("addbookbtn")
         
-        self.deleteboobtn = QtWidgets.QPushButton(parent=self.book)
-        self.deleteboobtn.setGeometry(QtCore.QRect(890, 580, 131, 101))
+        self.deletebookbtn = QtWidgets.QPushButton(parent=self.book)
+        self.deletebookbtn.setGeometry(QtCore.QRect(890, 580, 131, 101))
         font = QtGui.QFont()
         font.setFamily("Nirmala UI")
         font.setPointSize(11)
         font.setBold(True)
         font.setWeight(75)
-        self.deleteboobtn.setFont(font)
-        self.deleteboobtn.setStyleSheet("""
+        self.deletebookbtn.setFont(font)
+        self.deletebookbtn.setStyleSheet("""
             QPushButton {
                 background-color: rgb(200, 46, 18);
                 color: white;
@@ -267,7 +267,7 @@ class Ui_MainWindow(object):
                 background-color: rgb(255, 50, 50);
             }
         """)
-        self.deleteboobtn.setObjectName("deleteboobtn")
+        self.deletebookbtn.setObjectName("deletebookbtn")
         
         self.updatebookbtn = QtWidgets.QPushButton(parent=self.book)
         self.updatebookbtn.setGeometry(QtCore.QRect(890, 390, 131, 181))
@@ -472,7 +472,7 @@ class Ui_MainWindow(object):
         self.returnbtn.setText(_translate("MainWindow", "Return"))
         self.reservebtn.setText(_translate("MainWindow", "Reserve"))
         self.addbookbtn.setText(_translate("MainWindow", "Add Book"))
-        self.deleteboobtn.setText(_translate("MainWindow", "Delete Book"))
+        self.deletebookbtn.setText(_translate("MainWindow", "Delete Book"))
         self.updatebookbtn.setText(_translate("MainWindow", "Update Book"))
         self.addcustomerbtn.setText(_translate("MainWindow", "Add Customer"))
         self.updatecustomerbtn.setText(_translate("MainWindow", "Update Customer"))
