@@ -252,21 +252,41 @@ class addBookDialog(object):
         except Exception as e:
                 print("Error Occurred:", e)
 
-    def get_book_info(self):
+        def get_book_info(self):
         ISBN = self.isbnlineedit.text()
         Title = self.titlelineedit.text()
         Author = self.authorlineedit.text()
         Category = self.categorybox.currentText()
         Status = "Available"
         Description = self.bookdesc.toPlainText()
-        if self.openpicbutton != "Select Picture":
-            Cover_image = self.openpicbutton.text()
-        else:
-             Cover_image = "No Image Available"
+        if self.openpicbutton.text() == "Select Picture":
+            QMessageBox.warning(self.dialog, "Warning", "Please select a book cover image.")
+            return None
+
         try:
             bookbasefee = float(self.bookbasefee.text())
         except ValueError:
-            bookbasefee = 0.0
-        return ISBN, Title, Author, Category, Status, Description, bookbasefee, Cover_image
+            QMessageBox.warning(self.dialog, "Warning", "Please enter a valid numeric value for base rent fee.")
+            return None
+
+        if not all([ISBN, Title, Author, Category, Description]):
+            QMessageBox.warning(self.dialog, "Warning", "Please fill in all required fields.")
+            return None
+
+        Cover_image = self.openpicbutton.text() if self.openpicbutton.text() != "Select Picture" else "No Image Available"
+
+        return ISBN, Title, Author, Category, Status, bookbasefee, Description, Cover_image
+
+    def confirm_add_book(self):
+        book_details = self.get_book_info()
+        try:
+            with sqlite3.connect("library.db") as conn:
+                cursor = conn.cursor()
+                cursor.execute(
+                    "INSERT INTO books (BookId, Title, Author, Category, Status, RentalFee, Description, Cover_Image) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                    book_details)
+                conn.commit()
+        except sqlite3.Error as e:
+            QMessageBox.critical(self, "Error", f"Error adding book: {e}")
     
     
