@@ -8,7 +8,7 @@ import sqlite3
 
 from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6.QtCore import QDate
-from PyQt6.QtWidgets import QFileDialog, QCalendarWidget, QMessageBox
+from PyQt6.QtWidgets import QFileDialog, QCalendarWidget, QMessageBox, QDialog
 
 
 class RentBookDialog(object):
@@ -61,7 +61,7 @@ class RentBookDialog(object):
         self.label_5.setObjectName("label_5")
         self.bookscbox = QtWidgets.QComboBox(parent=RentBook)
         self.bookscbox.setGeometry(QtCore.QRect(170, 90, 371, 22))
-        self.bookscbox.setStyleSheet(" background: white; color:black")
+        self.bookscbox.setStyleSheet(" background: black")
         self.bookscbox.setObjectName("bookscbox")
         self.Cancel = QtWidgets.QPushButton(parent=RentBook)
         self.Cancel.setGeometry(QtCore.QRect(310, 310, 231, 40))
@@ -84,7 +84,7 @@ class RentBookDialog(object):
         self.Cancel.setObjectName("Cancel")
         self.customersbox = QtWidgets.QComboBox(parent=RentBook)
         self.customersbox.setGeometry(QtCore.QRect(170, 126, 371, 22))
-        self.customersbox.setStyleSheet(" background: white; color:black")
+        self.customersbox.setStyleSheet(" background: black")
         self.customersbox.setObjectName("customersbox")
         self.label_6 = QtWidgets.QLabel(parent=RentBook)
         self.label_6.setGeometry(QtCore.QRect(80, 160, 91, 31))
@@ -119,7 +119,7 @@ class RentBookDialog(object):
         self.label.setObjectName("label")
         self.rentfeefield = QtWidgets.QLineEdit(parent=RentBook)
         self.rentfeefield.setGeometry(QtCore.QRect(170, 165, 371, 22))
-        self.rentfeefield.setStyleSheet(" background: white; color:black;")
+        self.rentfeefield.setStyleSheet(" background: black")
         self.rentfeefield.setFrame(False)
         self.rentfeefield.setObjectName("rentfeefield")
         self.label_7 = QtWidgets.QLabel(parent=RentBook)
@@ -187,6 +187,7 @@ class RentBookDialog(object):
 
         self.retranslateUi(RentBook)
         QtCore.QMetaObject.connectSlotsByName(RentBook)
+
         # This part makes the button execute a function
         self.startdate.clicked.connect(self.select_start_date)
         self.duedate.clicked.connect(self.select_due_date)
@@ -214,50 +215,80 @@ class RentBookDialog(object):
         print("WTF IS GOING ON!")
 
     def select_start_date(self):
-        # Create a calendar widget
         try:
-            calendar = QCalendarWidget()
-            calendar.setWindowModality(QtCore.Qt.WindowModality.ApplicationModal)
+            # Create a calendar dialog
+            calendar_dialog = QDialog()
+            calendar_dialog.setWindowTitle("Select Return Date")
+            calendar = QCalendarWidget(calendar_dialog)
+            calendar.setGeometry(10, 10, 400, 250)
 
-            # Define a function to handle selection change
-            def handle_selection_change():
-                selected_date = calendar.selectedDate()
-                formatted_date = selected_date.toString(QtCore.Qt.DateFormat.ISODate)
-                self.startdate.setText(formatted_date)
-                # Store the selected start date in a class variable for later use
-                self.selected_start_date = formatted_date
+            # Create a button to confirm the date selection
+            select_button = QtWidgets.QPushButton("Select Date", calendar_dialog)
+            select_button.setGeometry(150, 270, 100, 30)
+            select_button.clicked.connect(lambda: self.on_startdate_selected(calendar, calendar_dialog))
 
-            # Connect the selectionChanged signal to the handler function
-            calendar.selectionChanged.connect(handle_selection_change)
-
-            # Show the calendar widget
-            calendar.show()
+            # Show the calendar dialog
+            calendar_dialog.exec()
         except Exception as e:
             print(e)
 
-    def select_due_date(self):
-        # Create a calendar widget
-        calendar = QCalendarWidget()
-        calendar.setWindowModality(QtCore.Qt.WindowModality.ApplicationModal)
-
-        # Connect the selectionChanged signal to a function
-        calendar.selectionChanged.connect(lambda: self.on_duedate_selected(calendar, self.duedate))
-
-        # Show the calendar widget
-        calendar.show()
-
-    def on_duedate_selected(self, calendar, button):
+    def on_startdate_selected(self, calendar, dialog):
         # Get the selected date from the calendar widget
         selected_date = calendar.selectedDate()
+
+        # If no date is selected, return without setting the button text
+        if not selected_date.isValid():
+            return
 
         # Format the selected date as a string
         formatted_date = selected_date.toString(QtCore.Qt.DateFormat.ISODate)
 
-        # Set the selected date as the text of the button
-        button.setText(formatted_date)
+        # Set the selected date as the text of the due date button
+        self.startdate.setText(formatted_date)
 
-        # Store the selected due date in a class variable for later use
+        # Store the selected return date in a class variable for later use
+        self.selected_start_date = formatted_date
+
+        # Close the dialog
+        dialog.accept()
+
+    def select_due_date(self):
+        try:
+            # Create a calendar dialog
+            calendar_dialog = QDialog()
+            calendar_dialog.setWindowTitle("Select Return Date")
+            calendar = QCalendarWidget(calendar_dialog)
+            calendar.setGeometry(10, 10, 400, 250)
+
+            # Create a button to confirm the date selection
+            select_button = QtWidgets.QPushButton("Select Date", calendar_dialog)
+            select_button.setGeometry(150, 270, 100, 30)
+            select_button.clicked.connect(lambda: self.on_duedate_selected(calendar, calendar_dialog))
+
+            # Show the calendar dialog
+            calendar_dialog.exec()
+        except Exception as e:
+            print(e)
+
+    def on_duedate_selected(self, calendar, dialog):
+        # Get the selected date from the calendar widget
+        selected_date = calendar.selectedDate()
+
+        # If no date is selected, return without setting the button text
+        if not selected_date.isValid():
+            return
+
+        # Format the selected date as a string
+        formatted_date = selected_date.toString(QtCore.Qt.DateFormat.ISODate)
+
+        # Set the selected date as the text of the due date button
+        self.duedate.setText(formatted_date)
+
+        # Store the selected return date in a class variable for later use
         self.selected_due_date = formatted_date
+
+        # Close the dialog
+        dialog.accept()
 
     def confirm_rent(self):
         book_title = self.bookscbox.currentText()
@@ -281,6 +312,7 @@ class RentBookDialog(object):
         c = conn.cursor()
 
         try:
+
             # Fetch the CustomerID based on the selected customer's name
             c.execute("SELECT CustomerID FROM customers WHERE Name = ?", (customer_name,))
             customer_id_result = c.fetchone()
@@ -303,7 +335,29 @@ class RentBookDialog(object):
             print("Rental Fee from Database:", rental_fee)
             print("Book Status:", book_status)
 
-            if book_status != 'Available':
+            # Check if the reservation exists for the given book and customer
+            c.execute("SELECT * FROM reserve WHERE CustomerId = ? AND BookId = ? AND ReservationDate = ?",
+                           (customer_id, book_id, rent_date))
+            reservation_result = c.fetchone()
+            customerReserve_id_result = reservation_result[0]
+            if reservation_result is None:
+                print("Reservation not found")
+                QtWidgets.QMessageBox.warning(self.dialog, "Error", "No reservation found for the selected book and customer")
+                conn.close()
+                return
+
+            # Rent the book by deleting the reservation record
+            c.execute("DELETE FROM reserve WHERE CustomerId = ? AND BookId = ? AND ReservationDate = ?",
+                           (customer_id, book_id, rent_date))
+
+            # Update the status of the book to 'Rented'
+            c.execute("UPDATE books SET Status = 'Rented' WHERE BookID = ?", (book_id,))
+
+            if customerReserve_id_result != customer_id:
+                QMessageBox.warning(self.dialog, "Error", "Book is reserved")
+                return
+
+            if book_status == 'Rented' or book_status == 'Reserved':
                 QMessageBox.warning(self.dialog, "Error", "Book is not available")
                 return
 
@@ -364,7 +418,6 @@ class RentBookDialog(object):
         # Iterate through the fetched titles and add them to the combo box
         for title in titles:
             self.bookscbox.addItem(title[0])
-
 
     def get_rental_fee(self, book_id):
         try:
