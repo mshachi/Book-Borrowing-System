@@ -335,7 +335,29 @@ class RentBookDialog(object):
             print("Rental Fee from Database:", rental_fee)
             print("Book Status:", book_status)
 
-            if book_status != 'Available':
+            # Check if the reservation exists for the given book and customer
+            c.execute("SELECT * FROM reserve WHERE CustomerId = ? AND BookId = ? AND ReservationDate = ?",
+                           (customer_id, book_id, rent_date))
+            reservation_result = c.fetchone()
+            customerReserve_id_result = reservation_result[0]
+            if reservation_result is None:
+                print("Reservation not found")
+                QtWidgets.QMessageBox.warning(self.dialog, "Error", "No reservation found for the selected book and customer")
+                conn.close()
+                return
+
+            # Rent the book by deleting the reservation record
+            c.execute("DELETE FROM reserve WHERE CustomerId = ? AND BookId = ? AND ReservationDate = ?",
+                           (customer_id, book_id, rent_date))
+
+            # Update the status of the book to 'Rented'
+            c.execute("UPDATE books SET Status = 'Rented' WHERE BookID = ?", (book_id,))
+
+            if customerReserve_id_result != customer_id:
+                QMessageBox.warning(self.dialog, "Error", "Book is reserved")
+                return
+
+            if book_status == 'Rented' or book_status == 'Reserved':
                 QMessageBox.warning(self.dialog, "Error", "Book is not available")
                 return
 
