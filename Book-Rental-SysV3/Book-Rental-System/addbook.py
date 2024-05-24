@@ -252,7 +252,7 @@ class addBookDialog(object):
         except Exception as e:
                 print("Error Occurred:", e)
 
-        def get_book_info(self):
+    def get_book_info(self):
         ISBN = self.isbnlineedit.text()
         Title = self.titlelineedit.text()
         Author = self.authorlineedit.text()
