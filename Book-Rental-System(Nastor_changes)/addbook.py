@@ -267,6 +267,6 @@ class addBookDialog(object):
             bookbasefee = float(self.bookbasefee.text())
         except ValueError:
             bookbasefee = 0.0
-        return ISBN, Title, Author, Category, Status, Description, bookbasefee, Cover_image
+        return ISBN, Title, Author, Category, Status, bookbasefee, Description, Cover_image
     
     
