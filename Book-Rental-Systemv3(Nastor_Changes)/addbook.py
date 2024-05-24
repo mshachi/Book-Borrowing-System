@@ -268,5 +268,17 @@ class addBookDialog(object):
         except ValueError:
             bookbasefee = 0.0
         return ISBN, Title, Author, Category, Status, Description, bookbasefee, Cover_image
+
+    def confirm_add_book(self):
+        book_details = self.get_book_info()
+        try:
+            with sqlite3.connect("library.db") as conn:
+                cursor = conn.cursor()
+                cursor.execute(
+                    "INSERT INTO books (BookId, Title, Author, Category, Status, RentalFee, Description, Cover_Image) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                    book_details)
+                conn.commit()
+        except sqlite3.Error as e:
+            QMessageBox.critical(self, "Error", f"Error adding book: {e}")
     
     
