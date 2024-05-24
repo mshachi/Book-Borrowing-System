@@ -61,7 +61,7 @@ class RentBookDialog(object):
         self.label_5.setObjectName("label_5")
         self.bookscbox = QtWidgets.QComboBox(parent=RentBook)
         self.bookscbox.setGeometry(QtCore.QRect(170, 90, 371, 22))
-        self.bookscbox.setStyleSheet(" background: black")
+        self.bookscbox.setStyleSheet(" background: white; color:black")
         self.bookscbox.setObjectName("bookscbox")
         self.Cancel = QtWidgets.QPushButton(parent=RentBook)
         self.Cancel.setGeometry(QtCore.QRect(310, 310, 231, 40))
@@ -84,7 +84,7 @@ class RentBookDialog(object):
         self.Cancel.setObjectName("Cancel")
         self.customersbox = QtWidgets.QComboBox(parent=RentBook)
         self.customersbox.setGeometry(QtCore.QRect(170, 126, 371, 22))
-        self.customersbox.setStyleSheet(" background: black")
+        self.customersbox.setStyleSheet(" background: white; color:black")
         self.customersbox.setObjectName("customersbox")
         self.label_6 = QtWidgets.QLabel(parent=RentBook)
         self.label_6.setGeometry(QtCore.QRect(80, 160, 91, 31))
@@ -119,7 +119,7 @@ class RentBookDialog(object):
         self.label.setObjectName("label")
         self.rentfeefield = QtWidgets.QLineEdit(parent=RentBook)
         self.rentfeefield.setGeometry(QtCore.QRect(170, 165, 371, 22))
-        self.rentfeefield.setStyleSheet(" background: black")
+        self.rentfeefield.setStyleSheet(" background: white; color:black;")
         self.rentfeefield.setFrame(False)
         self.rentfeefield.setObjectName("rentfeefield")
         self.label_7 = QtWidgets.QLabel(parent=RentBook)
@@ -364,6 +364,7 @@ class RentBookDialog(object):
         # Iterate through the fetched titles and add them to the combo box
         for title in titles:
             self.bookscbox.addItem(title[0])
+
 
     def get_rental_fee(self, book_id):
         try:
