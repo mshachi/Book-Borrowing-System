@@ -1,7 +1,7 @@
 import sqlite3
 from PyQt6 import QtWidgets, QtCore, QtGui
 from PyQt6.QtWidgets import QApplication, QMainWindow, QDialog, QTableWidgetItem, QMessageBox
-from PyQt6.QtCore import QDate
+from PyQt6.QtCore import QDate, QTimer
 from PyQt6.QtGui import QIcon
 
 from mainwindow_v2 import Ui_MainWindow
@@ -84,6 +84,10 @@ class MainWindow(QtWidgets.QMainWindow):
 
             self.insert_dummy_books()
             self.insert_dummy_customers()
+            # Set up a timer to run the update_book_statuses function every day (86400000 ms = 24 hours)
+            self.status_update_timer = QTimer(self)
+            self.status_update_timer.timeout.connect(self.update_book_reservations())
+            self.status_update_timer.start(86400000)  # 24 hours in milliseconds
 
         except Exception as e:
             print("An error occurred during initialization:", e)
@@ -701,7 +705,6 @@ class MainWindow(QtWidgets.QMainWindow):
             conn.commit()
             conn.close()
 
-            QMessageBox.information(self.dialog, "Success", "Data inserted successfully.")
         except sqlite3.Error as e:
             QMessageBox.critical(self.dialog, "Database Error", f"An error occurred: {e}")
 
@@ -764,10 +767,42 @@ class MainWindow(QtWidgets.QMainWindow):
             conn.commit()
             conn.close()
 
-            QMessageBox.information(None, "Success", "Data inserted successfully.")
         except sqlite3.Error as e:
             print("Error:", e)  # Print the error
             QMessageBox.critical(None, "Database Error", f"An error occurred: {e}")
+
+    def update_book_reservations(self):
+        try:
+            conn = sqlite3.connect('library.db')
+            cursor = conn.cursor()
+
+            # Get the current date (for testing purposes)
+            # Comment this line for real usage
+            #specific_date = QtCore.QDate(2024, 6, 6)
+            #current_date = specific_date.toString(QtCore.Qt.DateFormat.ISODate)
+
+            # Uncomment this line for real usage
+            current_date = QtCore.QDate.currentDate().toString(QtCore.Qt.DateFormat.ISODate)
+
+            # Fetch all reservations where the reservation date is less than the current date
+            cursor.execute("""
+                SELECT r.BookId, b.Status
+                FROM reserve r
+                JOIN books b ON r.BookId = b.BookID
+                WHERE r.ReservationDate < ?
+            """, (current_date,))
+
+            expired_reservations = cursor.fetchall()
+
+            # Update the status of each expired reserved book to 'Available'
+            for book_id, status in expired_reservations:
+                if status == 'Reserved':
+                    cursor.execute("UPDATE books SET Status = 'Available' WHERE BookID = ?", (book_id,))
+
+            conn.commit()
+            conn.close()
+        except sqlite3.Error as e:
+            print("Error updating book statuses:", e)
 
 
 class InfoDialog(QtWidgets.QDialog):
