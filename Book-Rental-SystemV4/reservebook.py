@@ -265,7 +265,7 @@ class ReserveBookDialog(QDialog):  # Inherit from QDialog
             conn = sqlite3.connect('library.db')
             cursor = conn.cursor()
 
-                        # Get Book ID and Customer ID
+            # Get Book ID and Customer ID
             cursor.execute("SELECT BookID FROM books WHERE Title = ?", (book_title,))
             book_id_result = cursor.fetchone()
             if book_id_result is None:
@@ -281,6 +281,17 @@ class ReserveBookDialog(QDialog):  # Inherit from QDialog
                 conn.close()
                 return
             customer_id = customer_id_result[0]
+
+            # Check if the book is currently rented
+            cursor.execute("SELECT RentalDueDate FROM rentals WHERE BookID = ?", (book_id,))
+            due_date_result = cursor.fetchone()
+            if due_date_result:
+                due_date = QtCore.QDate.fromString(due_date_result[0], QtCore.Qt.DateFormat.ISODate)
+                if reserve_date <= due_date:
+                    QMessageBox.warning(self.dialog, "Error",
+                                        f"Cannot reserve on {reserve_date} because the book is rented until {due_date.toString(QtCore.Qt.DateFormat.ISODate)}")
+                    conn.close()
+                    return
 
             # Insert the reservation record
             cursor.execute(
