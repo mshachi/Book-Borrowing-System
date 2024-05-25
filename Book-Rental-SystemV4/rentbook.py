@@ -11,6 +11,7 @@ from PyQt6.QtCore import QDate
 from PyQt6.QtWidgets import QFileDialog, QCalendarWidget, QMessageBox, QDialog
 from datetime import date
 
+
 class RentBookDialog(object):
     def setupUi(self, RentBook):
         self.dialog = RentBook
@@ -188,9 +189,7 @@ class RentBookDialog(object):
         self.retranslateUi(RentBook)
         QtCore.QMetaObject.connectSlotsByName(RentBook)
 
-        
         self.bookscbox.currentIndexChanged.connect(self.update_rent_fee)
-        
 
         # This part makes the button execute a function
         self.startdate.clicked.connect(self.select_start_date)
@@ -214,8 +213,6 @@ class RentBookDialog(object):
         self.label_8.setText(_translate("RentBook", "to"))
         self.startdate.setText(_translate("RentBook", "Start Date"))
         self.duedate.setText(_translate("RentBook", "Due Date"))
-
-    
 
     def select_start_date(self):
         try:
@@ -298,7 +295,7 @@ class RentBookDialog(object):
             # Convert QDate objects to strings in ISO format
             rent_date_str = self.selected_start_date
             due_date_str = self.selected_due_date
-            
+
             # Check if rent_date is None
             if self.selected_start_date is None:
                 QMessageBox.warning(self.dialog, "Error", "Please select a start date.")
@@ -308,7 +305,7 @@ class RentBookDialog(object):
             if self.selected_due_date is None:
                 QMessageBox.warning(self.dialog, "Error", "Please select a due date.")
                 return
-                
+
             book_title = self.bookscbox.currentText()
             customer_name = self.customersbox.currentText()
             rent_fee = self.rentfeefield.text()
@@ -323,7 +320,7 @@ class RentBookDialog(object):
             rent_date = date.fromisoformat(self.selected_start_date)
             due_date = date.fromisoformat(self.selected_due_date)
             days_between = (due_date - rent_date).days
-            
+
             print("Days between:", days_between)
 
             # Connect to the database
@@ -352,18 +349,34 @@ class RentBookDialog(object):
                 print("Book ID:", book_id)
                 print("Rental Fee from Database:", rental_fee)
                 print("Book Status:", book_status)
-                
+
                 # Check if the book is available for rent
                 if book_status != 'Available':
                     QMessageBox.warning(self.dialog, "Error", "Book is not available for rent.")
                     return
 
-                # Check if the book is reserved for the selected date
-                c.execute("SELECT CustomerID FROM reserve WHERE BookID = ? AND ReservationDate = ?", (book_id, rent_date))
-                reserved_customer_id = c.fetchone()
-                if reserved_customer_id is not None:
-                    QMessageBox.warning(self.dialog, "Error", "Book is reserved for another customer on the selected date.")
-                    return
+                # Check if the book is reserved for the selected date and customer
+                c.execute("SELECT CustomerID, ReservationDate FROM reserve WHERE BookID = ?", (book_id,))
+                reservation = c.fetchone()
+
+                if reservation:
+                    reserved_customer_id, reserved_date = reservation
+
+                    # Check if the book is reserved for another customer
+                    if reserved_customer_id != customer_id:
+                        QMessageBox.warning(self.dialog, "Error",
+                                            f"Book is reserved for customer {reserved_customer_id} on {reserved_date}.")
+                        return
+
+                    # Check if the due date conflicts with the reservation date
+                    days_between_reserve = (QDate.fromString(due_date, "yyyy-MM-dd").toPyDate() - reserved_date).days
+                    if days_between_reserve > 0:
+                        QMessageBox.warning(self.dialog, "Error",
+                                            f"Book is reserved for customer {reserved_customer_id} on {reserved_date}.")
+                        return
+                else:
+                    # No reservation found, proceed with renting the book
+                    pass  # Your rent book logic here
 
                 # Calculate the final fee in terms of rent days
                 final_rent_fee = days_between * rental_fee
@@ -389,7 +402,7 @@ class RentBookDialog(object):
                 QMessageBox.critical(self.dialog, "Error", f"An unexpected error occurred: {e}")
 
         except Exception as e:
-            print("Error here pi: ", e)
+            print("Error here po: ", e)
 
     def populate_customers_combo_box(self):
         # Clear existing items in the combo box
@@ -416,7 +429,7 @@ class RentBookDialog(object):
         c = conn.cursor()
 
         # Execute a query to fetch book titles with status "Available" from the database
-        c.execute("SELECT Title FROM books WHERE Status = 'Available'")
+        c.execute("SELECT Title FROM books WHERE Status = 'Available' ")
 
         # Fetch all titles from the executed query
         titles = c.fetchall()
@@ -430,7 +443,7 @@ class RentBookDialog(object):
             # Create connection to database
             conn = sqlite3.connect("library.db")
             c = conn.cursor()
-            
+
             # Fetch the rental fee from the database based on the book ID
             c.execute("SELECT RentalFee FROM books WHERE Title = ?", (book_name,))
             rental_fee = c.fetchone()[0]
@@ -441,7 +454,7 @@ class RentBookDialog(object):
         except sqlite3.Error as e:
             print("Error fetching rental fee:", e)
             return None
-        
+
     def update_rent_fee(self):
         # Get the selected book title
         try:
@@ -456,4 +469,4 @@ class RentBookDialog(object):
             else:
                 self.rentfeefield.setText("")  # Clear the field if no rental fee is found
         except Exception as e:
-            print("Error occured sa pag cbox chuchu:",e)
+            print("Error occured sa pag cbox chuchu:", e)
