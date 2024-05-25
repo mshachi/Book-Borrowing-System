@@ -30,10 +30,12 @@ class MainWindow(QtWidgets.QMainWindow):
             self.stackedWidget = self.ui.stackedWidget
             self.booktable = self.ui.booktable
             self.customertable = self.ui.customertable
+            self.transactionstable = self.ui.transactionstable
             self.deletebook = self.ui.deletebookbtn
             self.deletecustomer = self.ui.deletecustomerbtn
             self.customersearch = self.ui.customersearch
             self.booksearch = self.ui.booksearch
+            self.transactionssearch = self.ui.transactionsearch
 
             # Connect button click events to methods
             self.homebutton.clicked.connect(self.show_home)
@@ -67,6 +69,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.customertable.itemSelectionChanged.connect(self.customer_selection_changed)
 
             # Connect table double-click events to methods
+            self.transactionstable.cellDoubleClicked.connect(self.show_transaction_info_dialog)
             self.booktable.cellDoubleClicked.connect(self.show_book_info_dialog)
             self.customertable.cellDoubleClicked.connect(self.show_customer_info_dialog)
 
@@ -122,9 +125,7 @@ class MainWindow(QtWidgets.QMainWindow):
             dialog = QtWidgets.QDialog()
             ui = editbookDialog()
             ui.setupUi(dialog)
-            if dialog.exec() == QDialog.DialogCode.Accepted:
-                book_info = ui.get_book_info()
-                self.update_book_in_db(book_info)
+            dialog.exec()
         except Exception as e:
             print("Error occurred: 4", e)
 
@@ -146,6 +147,7 @@ class MainWindow(QtWidgets.QMainWindow):
             ui.setupUi(dialog)
             if dialog.exec() == QDialog.DialogCode.Accepted:
                 self.load_transactions()
+                self.load_books()
         except Exception as e:
             print("Error occurred: 5", e)
 
@@ -315,28 +317,29 @@ class MainWindow(QtWidgets.QMainWindow):
         if not book_id_item:
                 QMessageBox.warning(self, "Warning", "Invalid book selected.")
                 return
-        try:
-            book_id = book_id_item.text()
+        
+        book_id = book_id_item.text()
 
-                # Fetch customer data from database
-            book_data = self.get_book_data_from_db(book_id)
+            # Fetch customer data from database
+        book_data = self.get_book_data_from_db(book_id)
                 
 
-            if not book_data:
-                    QMessageBox.warning(self, "Warning", "Could not fetch book data.")
-                    return
+        if not book_data:
+                QMessageBox.warning(self, "Warning", "Could not fetch book data.")
+                return
             
-            dialog = QtWidgets.QDialog()
-            ui = editbookDialog()
-            ui.setupUi(dialog)
-            ui.load_book_data(book_data)
-        
-            if dialog.exec() == QDialog.DialogCode.Accepted:
-                updated_book_info = ui.get_book_info()
-                updated_book_info['BookID'] = book_id
+        dialog = QtWidgets.QDialog()
+        ui = editbookDialog()
+        ui.setupUi(dialog)
+        ui.load_book_data(book_data)
+        if dialog.exec() == QDialog.DialogCode.Accepted:
+            try:
+                updated_book_info = list(ui.get_book_info())
+                updated_book_info.append(book_id)
+                print(updated_book_info)
                 self.update_book_in_db(updated_book_info)
-        except Exception as e:
-            print("Error occurred here at line 325: ", e)
+            except Exception as e:
+                print("Error occurred here at line 325: ", e)
 
     def get_book_data_from_db(self, book_id):
         try:
@@ -371,8 +374,8 @@ class MainWindow(QtWidgets.QMainWindow):
                 UPDATE books
                 SET ISBN = ?, Title = ?, Author = ?, Category = ?, RentalFee = ?, Description = ?, Cover_Image = ?
                 WHERE BookID = ?
-            ''', (book_info['ISBN'], book_info['Title'], book_info['Author'], book_info['Category'], float(book_info['RentalFee']), book_info['Description'], book_info['Cover_Image'], book_info['BookID']))
-
+            ''', (book_info))
+            
             conn.commit()
             conn.close()
             self.load_books()
@@ -604,6 +607,30 @@ class MainWindow(QtWidgets.QMainWindow):
             conn.close()
         except sqlite3.Error as e:
             print("An error occurred:", e)
+    
+    def show_transaction_info_dialog(self,row, column):
+        transaction_data = [self.ui.transactionstable.item(row, col).text() for col in range(self.ui.transactionstable.columnCount())]
+    
+        try:
+            with sqlite3.connect("library.db") as conn:
+                cursor = conn.cursor()
+
+                if transaction_data[1] == "Rented" or transaction_data[1] == "Returned":
+                    # Fetch book title and customer name
+                    cursor.execute("SELECT books.Title, customers.Name FROM books INNER JOIN customers ON books.BookID = ? AND customers.CustomerID = ?", (transaction_data[2], transaction_data[3]))
+                    book_customer_data = cursor.fetchone()
+                    
+                    if book_customer_data:
+                        book_title, customer_name = book_customer_data
+                        transaction_data[2] = book_title
+                        transaction_data[3] = customer_name
+                
+                # Create the info dialog
+                info_dialog = InfoDialog(transaction_data, 'transaction')
+                info_dialog.exec()
+
+        except sqlite3.Error as e:
+            print("Error retrieving transaction information:", e)
 
     def filter_transactions(self):
         filter_text = self.ui.transactioncbox.currentText()
@@ -635,20 +662,21 @@ class InfoDialog(QtWidgets.QDialog):
             author_label = QtWidgets.QLabel(f"Author: {info[3]}")
             category_label = QtWidgets.QLabel(f"Category: {info[4]}")
             status_label = QtWidgets.QLabel(f"Status: {info[5]}")
-            description_label = QtWidgets.QLabel(f"Rental Fee: {info[7]}")
-            rental_fee_label = QtWidgets.QLabel(f"Description: {info[6]}")
+            rental_fee_label = QtWidgets.QLabel(f"Rental Fee: {info[6]}")
+            description_label = QtWidgets.QLabel(f"Description: {info[7]}")
+            description_label.setWordWrap(True)  # Enable word wrapping for the description label
 
             book_info_layout.addWidget(title_label)
             book_info_layout.addWidget(author_label)
             book_info_layout.addWidget(category_label)
             book_info_layout.addWidget(status_label)
-            book_info_layout.addWidget(description_label)
             book_info_layout.addWidget(rental_fee_label)
+            book_info_layout.addWidget(description_label)
 
             if info[8]:
                 cover_image_label = QtWidgets.QLabel()
                 pixmap = QtGui.QPixmap(info[8])
-                cover_image_label.setPixmap(pixmap.scaled(200, 200, QtCore.Qt.AspectRatioMode.KeepAspectRatio))
+                cover_image_label.setPixmap(pixmap.scaled(500, 500, QtCore.Qt.AspectRatioMode.KeepAspectRatio))
                 book_info_layout.addWidget(cover_image_label)
 
             layout.addLayout(book_info_layout)
@@ -666,12 +694,20 @@ class InfoDialog(QtWidgets.QDialog):
             if info[4]:
                 id_image_label = QtWidgets.QLabel()
                 pixmap = QtGui.QPixmap(info[4])
-                id_image_label.setPixmap(pixmap.scaled(200, 200, QtCore.Qt.AspectRatioMode.KeepAspectRatio))
+                id_image_label.setPixmap(pixmap.scaled(500, 500, QtCore.Qt.AspectRatioMode.KeepAspectRatio))
                 customer_info_layout.addWidget(id_image_label)
 
             layout.addLayout(customer_info_layout)
 
+        elif info_type == 'transaction':
+            transaction_info_layout = QtWidgets.QVBoxLayout()
+            for item in info:
+                label = QtWidgets.QLabel(item)
+                transaction_info_layout.addWidget(label)
+            layout.addLayout(transaction_info_layout)
+
         self.setLayout(layout)
+
 
 class ConfirmationDialog(QDialog):
     def __init__(self, message):

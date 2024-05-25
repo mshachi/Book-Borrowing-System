@@ -7,6 +7,7 @@
 
 
 from PyQt6 import QtCore, QtGui, QtWidgets
+from PyQt6.QtWidgets import QFileDialog, QMessageBox
 
 
 class editbookDialog(object):
@@ -242,7 +243,8 @@ class editbookDialog(object):
         QtCore.QMetaObject.connectSlotsByName(editbook)
 
         self.Cancel.clicked.connect(self.dialog.reject)
-        self.Confirm.clicked.connect(self.dialog.accept)
+        self.Confirm.clicked.connect(self.confirm_add_book)
+        self.openpicbutton.clicked.connect(self.open_file_dialog)
 
     def retranslateUi(self, editbook):
         _translate = QtCore.QCoreApplication.translate
@@ -265,6 +267,14 @@ class editbookDialog(object):
         self.label_5.setText(_translate("editbook", "Title:"))
 
 
+    def open_file_dialog(self):
+        try:
+            file_path, _ = QFileDialog.getOpenFileName(None, "Select Book Cover", "", "Images (*.png *.jpg *.jpeg *.bmp *.gif)")
+            if file_path:
+                self.openpicbutton.setText(file_path)
+        except Exception as e:
+            print("Error Occurred:", e)
+
     def load_book_data(self, book_data):
         self.isbnlineedit.setText(book_data['ISBN'])
         self.titlelineedit.setText(book_data['Title'])
@@ -276,13 +286,32 @@ class editbookDialog(object):
 
 
     def get_book_info(self):
-        return {
-                'ISBN': self.isbnlineedit.text(),
-                'Title': self.titlelineedit.text(),
-                'Author':self.authorlineedit.text(),
-                'Category':self.categorycbox.currentText(),
-                'Description':self.bookdesc.toPlainText(),
-                'RentalFee':self.bookbasefee.text(),
-                'Cover_Image':self.openpicbutton.text()
-        }
-    
+        try:
+            ISBN = self.isbnlineedit.text()
+            Title = self.titlelineedit.text()
+            Author = self.authorlineedit.text()
+            Category = self.categorycbox.currentText()
+            Description = self.bookdesc.toPlainText()
+            
+            # Validate base rent fee
+            try:
+                bookbasefee = float(self.bookbasefee.text())
+            except ValueError:
+                QMessageBox.warning(self.dialog, "Warning", "Please enter a valid numeric value for base rent fee.")
+                return None
+            
+            if not all([ISBN, Title, Author, Category, Description]):
+                QMessageBox.warning(self.dialog, "Warning", "Please fill in all required fields.")
+                return None
+
+            Cover_image = self.openpicbutton.text() if self.openpicbutton.text() != "Select Picture" else "No Image Available"
+
+            return ISBN, Title, Author, Category, bookbasefee, Description, Cover_image
+        except Exception as e:
+            print("Error occured when getting book info: ",e)
+    def confirm_add_book(self):
+        book_details = self.get_book_info()
+        if book_details is None:
+            return
+   
+        self.dialog.accept()

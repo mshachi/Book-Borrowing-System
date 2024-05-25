@@ -192,8 +192,12 @@ class RentBookDialog(object):
         self.bookscbox.currentIndexChanged.connect(self.update_rent_fee)
         
 
-        # This part makes the button execute a function
-        self.startdate.clicked.connect(self.select_start_date)
+        # Set the current date as the text of the start date button
+        self.startdate.setText(QDate.currentDate().toString(QtCore.Qt.DateFormat.ISODate))
+
+        # Disable the start date button
+        self.startdate.setEnabled(False)
+
         self.duedate.clicked.connect(self.select_due_date)
         self.Confirm.clicked.connect(self.confirm_rent)
         self.Cancel.clicked.connect(self.dialog.close)
@@ -217,43 +221,7 @@ class RentBookDialog(object):
 
     
 
-    def select_start_date(self):
-        try:
-            # Create a calendar dialog
-            calendar_dialog = QDialog()
-            calendar_dialog.setWindowTitle("Select Return Date")
-            calendar = QCalendarWidget(calendar_dialog)
-            calendar.setGeometry(10, 10, 400, 250)
-
-            # Create a button to confirm the date selection
-            select_button = QtWidgets.QPushButton("Select Date", calendar_dialog)
-            select_button.setGeometry(150, 270, 100, 30)
-            select_button.clicked.connect(lambda: self.on_startdate_selected(calendar, calendar_dialog))
-
-            # Show the calendar dialog
-            calendar_dialog.exec()
-        except Exception as e:
-            print(e)
-
-    def on_startdate_selected(self, calendar, dialog):
-        # Get the selected date from the calendar widget
-        selected_date = calendar.selectedDate()
-
-        # If no date is selected, return without setting the button text
-        if not selected_date.isValid():
-            return
-
-        # Format the selected date as a string
-        formatted_date = selected_date.toString(QtCore.Qt.DateFormat.ISODate)
-
-        # Set the selected date as the text of the due date button
-        self.startdate.setText(formatted_date)
-
-        # Store the selected return date in a class variable for later use
-        self.selected_start_date = formatted_date
-
-        # Close the dialog
-        dialog.accept()
+    
 
     def select_due_date(self):
         try:
@@ -296,13 +264,9 @@ class RentBookDialog(object):
     def confirm_rent(self):
         try:
             # Convert QDate objects to strings in ISO format
-            rent_date_str = self.selected_start_date
+            rent_date_str = self.startdate.text()
             due_date_str = self.selected_due_date
             
-            # Check if rent_date is None
-            if self.selected_start_date is None:
-                QMessageBox.warning(self.dialog, "Error", "Please select a start date.")
-                return
 
             # Check if due_date is None
             if self.selected_due_date is None:
@@ -320,7 +284,7 @@ class RentBookDialog(object):
             print("Due Date:", due_date_str)
 
             # Calculate the number of days between rentalDate and rentalDueDate
-            rent_date = date.fromisoformat(self.selected_start_date)
+            rent_date = date.fromisoformat(rent_date_str)
             due_date = date.fromisoformat(self.selected_due_date)
             days_between = (due_date - rent_date).days
             
@@ -457,3 +421,25 @@ class RentBookDialog(object):
                 self.rentfeefield.setText("")  # Clear the field if no rental fee is found
         except Exception as e:
             print("Error occured sa pag cbox chuchu:",e)
+
+
+    def select_due_date(self):
+        try:
+            # Create a calendar dialog
+            calendar_dialog = QDialog()
+            calendar_dialog.setWindowTitle("Select Return Date")
+            calendar = QCalendarWidget(calendar_dialog)
+            calendar.setGeometry(10, 10, 400, 250)
+
+            # Set minimum date to current date
+            calendar.setMinimumDate(QDate.currentDate())
+
+            # Create a button to confirm the date selection
+            select_button = QtWidgets.QPushButton("Select Date", calendar_dialog)
+            select_button.setGeometry(150, 270, 100, 30)
+            select_button.clicked.connect(lambda: self.on_duedate_selected(calendar, calendar_dialog))
+
+            # Show the calendar dialog
+            calendar_dialog.exec()
+        except Exception as e:
+            print(e)
