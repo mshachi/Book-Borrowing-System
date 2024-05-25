@@ -175,13 +175,16 @@ class ReturnBookDialog(object):
         QtCore.QMetaObject.connectSlotsByName(ReturnDialog)
         self.borrowedbook.currentIndexChanged.connect(self.on_borrowed_book_selected)
 
-        # Connect buttons to functions
-        self.return_date.clicked.connect(self.select_return_date)
+        # Set default return date to the current date
+        current_date = QDate.currentDate()
+        formatted_current_date = current_date.toString(QtCore.Qt.DateFormat.ISODate)
+        self.return_date.setText(formatted_current_date)
+        
         self.ConfirmReturn.clicked.connect(self.confirm_return_book)
         self.Cancel.clicked.connect(self.dialog.close)
 
         self.populate_borrowed_books()
-        self.populate_customers()
+        
 
     def retranslateUi(self, ReturnDialog):
         _translate = QtCore.QCoreApplication.translate
@@ -196,6 +199,7 @@ class ReturnBookDialog(object):
         self.due_Date.setText(_translate("ReturnDialog", "Due Date"))
         self.return_date.setText(_translate("ReturnDialog", "Return Date"))
 
+   
     def populate_borrowed_books(self):
         try:
             # Connect to the database
@@ -210,24 +214,37 @@ class ReturnBookDialog(object):
             for book in books:
                 self.borrowedbook.addItem(book[0])
 
+                # Call populate_customers() with the selected book title
+                self.populate_customers(book[0])  # Pass the selected book title
+
             # Close the database connection
             conn.close()
         except sqlite3.Error as e:
             print("An error occurred while populating borrowed books:", e)
 
-    def populate_customers(self):
+    def populate_customers(self, selected_book_title):
         try:
             # Connect to the database
             conn = sqlite3.connect('library.db')
             cursor = conn.cursor()
 
-            # Fetch customer names from the customers table
-            cursor.execute("SELECT Name FROM customers")
-            customers = cursor.fetchall()
+            # Fetch the customer name of the current book rental
+            cursor.execute("""
+                SELECT c.Name 
+                FROM customers c
+                INNER JOIN rentals r ON c.CustomerID = r.CustomerID
+                INNER JOIN books b ON r.BookID = b.BookID
+                WHERE b.Title = ?
+            """, (selected_book_title,))
+            current_customer = cursor.fetchone()
 
-            # Populate the customer combobox with the fetched names
-            for customer in customers:
-                self.customer.addItem(customer[0])
+            if current_customer:
+                # Clear combobox and add the current customer
+                self.customer.clear()
+                self.customer.addItem(current_customer[0])
+
+                # Disable editing
+                self.customer.setDisabled(True)
 
             # Close the database connection
             conn.close()
@@ -262,6 +279,9 @@ class ReturnBookDialog(object):
         current_book_title = self.borrowedbook.currentText()
         rental_due_date = self.get_rental_due_date(current_book_title)
         self.due_Date.setText(rental_due_date)
+        
+        # Populate customers for the selected book
+        self.populate_customers(current_book_title)
 
     def select_return_date(self):
         try:
