@@ -457,3 +457,45 @@ class RentBookDialog(object):
                 self.rentfeefield.setText("")  # Clear the field if no rental fee is found
         except Exception as e:
             print("Error occured sa pag cbox chuchu:",e)
+
+    def select_start_date(self):
+        try:
+            # Create a calendar dialog
+            calendar_dialog = QDialog()
+            calendar_dialog.setWindowTitle("Select Return Date")
+            calendar = QCalendarWidget(calendar_dialog)
+            calendar.setGeometry(10, 10, 400, 250)
+
+            # Set minimum date to current date
+            calendar.setMinimumDate(QDate.currentDate())
+
+            # Create a button to confirm the date selection
+            select_button = QtWidgets.QPushButton("Select Date", calendar_dialog)
+            select_button.setGeometry(150, 270, 100, 30)
+            select_button.clicked.connect(lambda: self.on_startdate_selected(calendar, calendar_dialog))
+
+            # Show the calendar dialog
+            calendar_dialog.exec()
+        except Exception as e:
+            print(e)
+
+    def select_due_date(self):
+        try:
+            # Create a calendar dialog
+            calendar_dialog = QDialog()
+            calendar_dialog.setWindowTitle("Select Return Date")
+            calendar = QCalendarWidget(calendar_dialog)
+            calendar.setGeometry(10, 10, 400, 250)
+
+            # Set minimum date to current date
+            calendar.setMinimumDate(QDate.currentDate())
+
+            # Create a button to confirm the date selection
+            select_button = QtWidgets.QPushButton("Select Date", calendar_dialog)
+            select_button.setGeometry(150, 270, 100, 30)
+            select_button.clicked.connect(lambda: self.on_duedate_selected(calendar, calendar_dialog))
+
+            # Show the calendar dialog
+            calendar_dialog.exec()
+        except Exception as e:
+            print(e)
