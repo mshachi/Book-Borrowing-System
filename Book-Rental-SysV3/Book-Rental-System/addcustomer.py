@@ -12,11 +12,9 @@ from PyQt6.QtWidgets import QFileDialog, QMessageBox
 
 
 class addCustomerDialog(object):
-
-    def __init__(self):
-        self.dialog = None
-
     def setupUi(self, Dialog):
+        self.dialog = Dialog
+
         Dialog.setObjectName("Dialog")
         Dialog.resize(640, 316)
         Dialog.setStyleSheet("background:rgb(72, 72, 72)")
@@ -37,7 +35,7 @@ class addCustomerDialog(object):
         self.openGLWidget.setObjectName("openGLWidget")
         self.phonenumber = QtWidgets.QLineEdit(parent=Dialog)
         self.phonenumber.setGeometry(QtCore.QRect(160, 130, 201, 22))
-        self.phonenumber.setStyleSheet(" background: black")
+        self.phonenumber.setStyleSheet(" background: white; color: black")
         self.phonenumber.setObjectName("phonenumber")
         self.Confirm = QtWidgets.QPushButton(parent=Dialog)
         self.Confirm.setGeometry(QtCore.QRect(100, 250, 221, 40))
@@ -114,7 +112,7 @@ class addCustomerDialog(object):
         self.label_4.setObjectName("label_4")
         self.namecustomer = QtWidgets.QLineEdit(parent=Dialog)
         self.namecustomer.setGeometry(QtCore.QRect(160, 86, 411, 22))
-        self.namecustomer.setStyleSheet(" background: black")
+        self.namecustomer.setStyleSheet(" background: white; color:black;")
         self.namecustomer.setFrame(False)
         self.namecustomer.setObjectName("namecustomer")
         self.label_9 = QtWidgets.QLabel(parent=Dialog)
@@ -132,7 +130,7 @@ class addCustomerDialog(object):
         self.label_9.setObjectName("label_9")
         self.comboBox = QtWidgets.QComboBox(parent=Dialog)
         self.comboBox.setGeometry(QtCore.QRect(450, 130, 121, 22))
-        self.comboBox.setStyleSheet("background-color: black")
+        self.comboBox.setStyleSheet("background-color: white; color: black;")
         self.comboBox.setObjectName("comboBox")
         self.comboBox.addItems(["Male", "Female", "Other"])
 
@@ -164,7 +162,8 @@ class addCustomerDialog(object):
         self.openpicbutton.clicked.connect(self.open_file_dialog)
 
         # Connect the Confirm button to the confirm_add_customer slot
-        self.Confirm.clicked.connect(self.confirm_add_customer)
+        self.Confirm.clicked.connect(self.dialog.accept)
+        self.Cancel.clicked.connect(self.dialog.close)
 
     def retranslateUi(self, Dialog):
         _translate = QtCore.QCoreApplication.translate
@@ -179,6 +178,24 @@ class addCustomerDialog(object):
         self.label.setText(_translate("Dialog", "Add Customer"))
 
         # Function to gather user input and add a new customer to the database
+
+    def get_customer_info(self):
+        print("Adding customer...")
+        # Get the values from the input fields
+        name = self.namecustomer.text()
+        gender = self.comboBox.currentText()
+        phone_number = self.phonenumber.text()
+        valid_id_path = self.openpicbutton.text()  # Assuming this holds the path to the selected image
+
+        # Perform validation checks
+        if not name.strip() or not phone_number.strip() or not valid_id_path.strip():
+            QMessageBox.critical(self.dialog, "Error", "Please fill in all fields.")
+            return
+
+        # Prepare the data to be inserted into the database
+        customer_info = (name, gender, phone_number, valid_id_path)
+
+        return customer_info
 
     def generate_customer_id(self):
         try:
@@ -237,7 +254,6 @@ class addCustomerDialog(object):
             # Display an error message if an error occurs
             QMessageBox.critical(self.dialog, "Error", f"Error adding customer: {e}")
             print(f"Error adding customer: {e}")
-
 
     def open_file_dialog(self):
         try:
