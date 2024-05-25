@@ -4,8 +4,10 @@ from PyQt6.QtWidgets import QFileDialog, QMessageBox
 import sqlite3
 import sys
 
+
 class addBookDialog(object):
     def setupUi(self, Dialog):
+        self.dialog = Dialog
         Dialog.setObjectName("Dialog")
         Dialog.resize(590, 564)
         Dialog.setStyleSheet("background:rgb(72, 72, 72)")
@@ -29,6 +31,7 @@ class addBookDialog(object):
                                    "}")
         self.Confirm.setFlat(False)
         self.Confirm.setObjectName("Confirm")
+
         self.Cancel = QtWidgets.QPushButton(parent=Dialog)
         self.Cancel.setGeometry(QtCore.QRect(330, 500, 231, 40))
         font = QtGui.QFont()
@@ -56,7 +59,8 @@ class addBookDialog(object):
         font.setWeight(50)
         self.label_4.setFont(font)
         self.label_4.setStyleSheet("color:white;")
-        self.label_4.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading | QtCore.Qt.AlignmentFlag.AlignLeft | QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.label_4.setAlignment(
+            QtCore.Qt.AlignmentFlag.AlignLeading | QtCore.Qt.AlignmentFlag.AlignLeft | QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.label_4.setObjectName("label_4")
         self.label_5 = QtWidgets.QLabel(parent=Dialog)
         self.label_5.setGeometry(QtCore.QRect(90, 120, 61, 31))
@@ -66,7 +70,8 @@ class addBookDialog(object):
         font.setWeight(50)
         self.label_5.setFont(font)
         self.label_5.setStyleSheet("color:white;")
-        self.label_5.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading | QtCore.Qt.AlignmentFlag.AlignLeft | QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.label_5.setAlignment(
+            QtCore.Qt.AlignmentFlag.AlignLeading | QtCore.Qt.AlignmentFlag.AlignLeft | QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.label_5.setObjectName("label_5")
         self.label_6 = QtWidgets.QLabel(parent=Dialog)
         self.label_6.setGeometry(QtCore.QRect(70, 160, 61, 31))
@@ -76,7 +81,8 @@ class addBookDialog(object):
         font.setWeight(50)
         self.label_6.setFont(font)
         self.label_6.setStyleSheet("color:white;")
-        self.label_6.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading | QtCore.Qt.AlignmentFlag.AlignLeft | QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.label_6.setAlignment(
+            QtCore.Qt.AlignmentFlag.AlignLeading | QtCore.Qt.AlignmentFlag.AlignLeft | QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.label_6.setObjectName("label_6")
         self.label_7 = QtWidgets.QLabel(parent=Dialog)
         self.label_7.setGeometry(QtCore.QRect(40, 260, 121, 31))
@@ -86,7 +92,8 @@ class addBookDialog(object):
         font.setWeight(50)
         self.label_7.setFont(font)
         self.label_7.setStyleSheet("color:white;")
-        self.label_7.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading | QtCore.Qt.AlignmentFlag.AlignLeft | QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.label_7.setAlignment(
+            QtCore.Qt.AlignmentFlag.AlignLeading | QtCore.Qt.AlignmentFlag.AlignLeft | QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.label_7.setObjectName("label_7")
         self.label_8 = QtWidgets.QLabel(parent=Dialog)
         self.label_8.setGeometry(QtCore.QRect(28, 360, 101, 41))
@@ -97,7 +104,8 @@ class addBookDialog(object):
         self.label_8.setFont(font)
         self.label_8.setLayoutDirection(QtCore.Qt.LayoutDirection.LeftToRight)
         self.label_8.setStyleSheet("color:white;")
-        self.label_8.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight | QtCore.Qt.AlignmentFlag.AlignTrailing | QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.label_8.setAlignment(
+            QtCore.Qt.AlignmentFlag.AlignRight | QtCore.Qt.AlignmentFlag.AlignTrailing | QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.label_8.setWordWrap(True)
         self.label_8.setObjectName("label_8")
         self.bookdesc = QtWidgets.QTextEdit(parent=Dialog)
@@ -131,7 +139,8 @@ class addBookDialog(object):
         self.label_9.setFont(font)
         self.label_9.setLayoutDirection(QtCore.Qt.LayoutDirection.LeftToRight)
         self.label_9.setStyleSheet("color:white;")
-        self.label_9.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight | QtCore.Qt.AlignmentFlag.AlignTrailing | QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.label_9.setAlignment(
+            QtCore.Qt.AlignmentFlag.AlignRight | QtCore.Qt.AlignmentFlag.AlignTrailing | QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.label_9.setWordWrap(True)
         self.label_9.setObjectName("label_9")
         self.openGLWidget = QOpenGLWidget(parent=Dialog)
@@ -140,14 +149,14 @@ class addBookDialog(object):
         self.openpicbutton = QtWidgets.QPushButton(parent=Dialog)
         self.openpicbutton.setGeometry(QtCore.QRect(150, 440, 411, 31))
         self.openpicbutton.setStyleSheet("QPushButton {\n"
-                                        "background-color: rgb(72, 72, 72);\n"
-                                        "color:rgb(255, 255, 255);\n"
-                                        "border: none;\n"
-                                        "padding: 10px;\n"
-                                        "}\n"
-                                        "QPushButton:hover {\n"
-                                        "background-color: rgb(100, 100, 100);\n"
-                                        "}")
+                                         "background-color: rgb(72, 72, 72);\n"
+                                         "color:rgb(255, 255, 255);\n"
+                                         "border: none;\n"
+                                         "padding: 10px;\n"
+                                         "}\n"
+                                         "QPushButton:hover {\n"
+                                         "background-color: rgb(100, 100, 100);\n"
+                                         "}")
         self.openpicbutton.setObjectName("openpicbutton")
         self.frame = QtWidgets.QFrame(parent=Dialog)
         self.frame.setGeometry(QtCore.QRect(0, 0, 591, 61))
@@ -212,15 +221,15 @@ class addBookDialog(object):
         font.setWeight(50)
         self.label_10.setFont(font)
         self.label_10.setStyleSheet("color:white;")
-        self.label_10.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading | QtCore.Qt.AlignmentFlag.AlignLeft | QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.label_10.setAlignment(
+            QtCore.Qt.AlignmentFlag.AlignLeading | QtCore.Qt.AlignmentFlag.AlignLeft | QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.label_10.setObjectName("label_10")
-
 
         self.retranslateUi(Dialog)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
 
         # Connect the buttons to their respective slots
-        self.Confirm.clicked.connect(Dialog.accept)
+        self.Confirm.clicked.connect(self.confirm_add_book)
         self.Cancel.clicked.connect(Dialog.reject)
         self.openpicbutton.clicked.connect(self.open_file_dialog)
 
@@ -234,11 +243,12 @@ class addBookDialog(object):
         self.label_6.setText(_translate("Dialog", "Author:"))
         self.label_7.setText(_translate("Dialog", "Description:"))
         self.label_8.setText(_translate("Dialog", "Base Rent Fee:"))
-        self.bookdesc.setHtml(_translate("Dialog", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-                                                   "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
-                                                   "p, li { white-space: pre-wrap; }\n"
-                                                   "</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:8.13913pt; font-weight:400; font-style:normal;\">\n"
-                                                   "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8.13913pt;\"><br /></p></body></html>"))
+        self.bookdesc.setHtml(_translate("Dialog",
+                                         "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+                                         "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+                                         "p, li { white-space: pre-wrap; }\n"
+                                         "</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:8.13913pt; font-weight:400; font-style:normal;\">\n"
+                                         "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8.13913pt;\"><br /></p></body></html>"))
         self.label_9.setText(_translate("Dialog", "Book Cover:"))
         self.openpicbutton.setText(_translate("Dialog", "Select Picture"))
         self.label.setText(_translate("Dialog", "Add Book"))
@@ -246,11 +256,12 @@ class addBookDialog(object):
 
     def open_file_dialog(self):
         try:
-                file_path, _ = QFileDialog.getOpenFileName(None, "Select Book Cover", "", "Images (*.png *.jpg *.jpeg *.bmp *.gif)")
-                if file_path:
-                        self.openpicbutton.setText(file_path)
+            file_path, _ = QFileDialog.getOpenFileName(None, "Select Book Cover", "",
+                                                       "Images (*.png *.jpg *.jpeg *.bmp *.gif)")
+            if file_path:
+                self.openpicbutton.setText(file_path)
         except Exception as e:
-                print("Error Occurred:", e)
+            print("Error Occurred:", e)
 
     def get_book_info(self):
         ISBN = self.isbnlineedit.text()
@@ -259,10 +270,8 @@ class addBookDialog(object):
         Category = self.categorybox.currentText()
         Status = "Available"
         Description = self.bookdesc.toPlainText()
-        if self.openpicbutton.text() == "Select Picture":
-            QMessageBox.warning(self.dialog, "Warning", "Please select a book cover image.")
-            return None
 
+        # Validate base rent fee
         try:
             bookbasefee = float(self.bookbasefee.text())
         except ValueError:
@@ -279,6 +288,8 @@ class addBookDialog(object):
 
     def confirm_add_book(self):
         book_details = self.get_book_info()
+        if book_details is None:
+            return
         try:
             with sqlite3.connect("library.db") as conn:
                 cursor = conn.cursor()
@@ -287,6 +298,6 @@ class addBookDialog(object):
                     book_details)
                 conn.commit()
         except sqlite3.Error as e:
-            QMessageBox.critical(self, "Error", f"Error adding book: {e}")
-    
-    
+            QMessageBox.critical(self.dialog, "Error", f"Error adding book: {e}")
+        self.dialog.accept()  # Dialog accepted if insertion successful
+
