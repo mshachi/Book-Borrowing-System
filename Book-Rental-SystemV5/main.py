@@ -208,8 +208,13 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def delete_book_confirmation(self):
         selected_row = self.booktable.currentRow()
-        book_id_item = self.booktable.item(selected_row, 0)  # Assuming BookID is the first column
+        book_id_item = self.booktable.item(selected_row, 0) 
+        book_status = self.booktable.item(selected_row,5) 
         if book_id_item:
+            if book_status == "Rented" or "Reserved":
+                QMessageBox.critical(self, "Book can't be deleted", f"The book is still being rented/reserved")
+                return
+            
             book_id = book_id_item.text()
             confirmation_dialog = ConfirmationDialog("Are you sure you want to delete this book?")
             if confirmation_dialog.exec() == QtWidgets.QDialog.DialogCode.Accepted:
@@ -219,7 +224,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def delete_customer_confirmation(self):
         selected_row = self.customertable.currentRow()
-        customer_id_item = self.customertable.item(selected_row, 0)  # Assuming CustomerID is the first column
+        customer_id_item = self.customertable.item(selected_row, 0)  
         if customer_id_item:
             customer_id = customer_id_item.text()
             confirmation_dialog = ConfirmationDialog("Are you sure you want to delete this customer?")
