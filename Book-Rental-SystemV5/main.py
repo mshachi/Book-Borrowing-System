@@ -208,8 +208,9 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def delete_book_confirmation(self):
         selected_row = self.booktable.currentRow()
-        book_id_item = self.booktable.item(selected_row, 0) 
-        book_status = self.booktable.item(selected_row,5) 
+        book_id_item = self.booktable.item(selected_row, 0)         
+        book_status_item = self.booktable.item(selected_row,5) 
+        book_status = book_status_item.text()
         if book_id_item:
             if book_status == "Rented" or "Reserved":
                 QMessageBox.critical(self, "Book can't be deleted", f"The book is still being rented/reserved")
@@ -623,7 +624,7 @@ class MainWindow(QtWidgets.QMainWindow):
             conn = sqlite3.connect('library.db')
             c = conn.cursor()
             
-            query = f"SELECT * FROM customers WHERE Name LIKE '%{text}%' OR Gender LIKE '%{text}%' OR CustomerID LIKE '%{text}%'"
+            query = f"SELECT * FROM customers WHERE Name LIKE '%{text}%' OR Gender LIKE '%{text}%' OR CustomerID LIKE '%{text}%' OR "
             c.execute(query)
             customers = c.fetchall()
 
